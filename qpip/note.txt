@@ -1,0 +1,1 @@
+Code from https://github.com/oxfordcontrol/qpip. It is actually implementation of OOQP in pure MATLAB.

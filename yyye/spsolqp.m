@@ -1,4 +1,4 @@
-%  [x,y,obhis]=solqp(Q,A,b,c,(toler,beta))
+[x,y,obhis]=solqp(Q,A,b,c,(toler,beta))
 %
 %  See the User Guide at the end of this file.
 %

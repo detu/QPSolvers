@@ -11,5 +11,6 @@ addpath(genpath(strcat(pwd,sslash,'FilterQP')));
 addpath(genpath(strcat(pwd,sslash,'QPA')));
 addpath(genpath(strcat(pwd,sslash,'QPB')));
 addpath(genpath(strcat(pwd,sslash,'QPC')));
+addpath(genpath(strcat(pwd,sslash,'yyye')));
 rmpath(genpath(strcat(pwd,sslash,'LinearSolver/Mumps/Libraries')));
 

@@ -1,1 +1,2 @@
 Implement filterQP based on filterSQP.
+Codes are taken https://github.com/rensor/fminsqp.

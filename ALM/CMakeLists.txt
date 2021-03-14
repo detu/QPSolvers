@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(ALM)
+project(devQP)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 #set(CMAKE_CXX_STANDARD 11)
 
@@ -14,8 +14,10 @@ include_directories(${MATLAB_INCLUDE_DIRS})
 message("${CMAKE_MODULE_PATH}")
 message("${EIGEN3_INCLUDE_DIR}")
 
-set(EIG_MEXES main)
+#set(EIG_MEXES main)
 
-FOREACH(t ${EIG_MEXES})
-    matlab_add_mex(NAME ${t} SRC ${t}.cpp	LINK_TO ${MATLAB_LIBRARIES} ${MUMPS_LIBRARIES})
-ENDFOREACH(t ${EIG_MEXES})
+#FOREACH(t ${EIG_MEXES})
+#    matlab_add_mex(NAME ${t} SRC ${t}.cpp	LINK_TO ${MATLAB_LIBRARIES} ${MUMPS_LIBRARIES})
+#ENDFOREACH(t ${EIG_MEXES})
+
+add_executable(devQP main.cpp)

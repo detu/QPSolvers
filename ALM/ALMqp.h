@@ -9,7 +9,7 @@ struct ALMqp{
 
     ALMqp(Eigen::SparseMatrix<double> H,Eigen::SparseVector<double> f, Eigen::SparseMatrix<double> Aeq, Eigen::SparseVector<double> beq, Eigen::SparseVector<double> lb, Eigen::SparseVector<double> ub): H_{H}, f_(f), Aeq_(Aeq), beq_(beq), lb_(lb), ub_(ub)
     {
-        
+        // follow ALM Octave code!
     }
 
     Eigen::VectorXd sol() const noexcept{

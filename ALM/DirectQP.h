@@ -3,7 +3,8 @@
 struct DirectQP{
 
   DirectQP(Eigen::MatrixXf Q, Eigen::VectorXf b): Q_(Q), b_(b){
-    x_ = Q_.colPivHouseholderQr().solve(b_);
+    //x_ = Q_.colPivHouseholderQr().solve(b_);
+    x_ = Q_.llt().solve(b_);
   }
 
   Eigen::VectorXf solve() const noexcept{

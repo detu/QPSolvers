@@ -11,14 +11,13 @@ struct NewtonLS{
       double eps    = 1.0e-8;
       int    k      = 0;
       Eigen::VectorXd xk = x0_;
-      while ( b.norm() >= eps || k <= maxIter_){
+      Eigen::VectorXd g  = Q_*xk + b_;
+      while ( g.norm() >= eps || k <= maxIter_){
         Eigen::VectorXd d = Q_.llt().solve(b_);
-          //[L,tau] = modifiedCholesky(Q_);
-          //z = L \ g;
-          //d = - L' \ z;
-          //alpha = lineSearch();
-          //xk = xk + alpha * d;
-          // k = k + 1;
+          alpha = lineSearch(Q_,g,xk,d,alpha0,beta1,beta2,lambda);
+          xk += alpha * d;
+          g  = Q_*xk + b_;
+          k++;
       }
   }
 
@@ -33,9 +32,31 @@ private:
   Eigen::VectorXd x0_;
   int maxIter_;
 
-  // modifiedCholesky()
+  double lineSearch(Eigen::MatrixXd &Q, Eigen::VectorXd &g, Eigen::VectorXd &x, Eigen::VectorXd &d, double alpha0, double beta1, double beta2, double lambda){
+      double alpha  = alpha0;
+      double alphal = 0;
+      double alphar = 999999;
+      double deriv  = g.transpose()*d;
+      double f      = x.transpose()*Q*x + x.transpose()*b;
+      int ok = 0;
+      while (ok == 0){
+          Eigen::VectorXd xnew = x + alpha*d;
+          double fnew          = xnew.transpose()*Q*xnew + xnew.transpose()*b;
+          Eigen::VectorXd gnew = xnew.transpose()*Q + b;
 
-  double lineSearch(Eigen::MatrixXd &Q, Eigen::VectorXd &b, double alpha0, double beta1, double beta2, double lambda){
-
+          if ( fnew > (f + alpha*beta1*deriv)){
+              alphar = alpha;
+              alpha  = (alphal + alphar) / 2.0;
+          }
+          else if (gnew.transpose()*d < beta2*deriv){
+              alphal = alpha;
+              if(alphar == 999999)
+                  alpha = lambda*alpha;
+              else
+                  alpha = (alphal + alphar) / 2.0;
+          } else{
+              ok = 1;
+          }
+      }
   }
 };

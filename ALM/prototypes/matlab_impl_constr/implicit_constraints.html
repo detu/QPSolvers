@@ -1,0 +1,210 @@
+<HTML>
+<HEAD>
+<title>Matlab Codes for Implicitly Constrained Optimization Problems  -  Matthias Heinkenschloss</title>
+
+<LINK REL="stylesheet" TYPE="text/css" HREF="../stylesheets/style2.css">
+</HEAD>
+
+
+<CENTER>
+<HR SIZE=4>
+<H2>
+Matlab Codes for Implicitly Constrained Optimization Problems
+</H2>
+</CENTER>
+
+<P><P>
+
+Let <I>f: R<sup>n<sub>y</sub></sup> &times; R<sup>n<sub>u</sub></sup> &rarr; R </I> and 
+<I>c: R<sup>n<sub>y</sub></sup> &times; R<sup>n<sub>u</sub></sup> &rarr; R<sup>n<sub>y</sub></sup> </I>
+be given smooth functions.
+Assume that for every <I>u</I> the equation
+<BR>
+(1) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<I> c(y,u) = 0</I>  
+<BR>
+has a unique solution <I> y(u)</I>.
+We define the function <I> &phi;: R<sup>n<sub>u</sub></sup> &rarr; R </I>,
+<BR>
+(2)  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<I> &phi;(u) = f(y(u),u)</I>  
+<BR>
+and consider the imlicitly constrained optimization problem
+<BR>
+(3)  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<I> min g(u)</I>. 
+<BR>
+(Note: In this html document I use  <I> &phi;</I> to denote the reduced function instead of 'hat<I>f </I>'.)
+
+
+<P><P>
+The paper <A HREF="../papers/MHeinkenschloss_2008a.html">M. Heinkenschloss:
+Numerical Solution of Implicitly Constrained Optimization Problems</A>
+discusses the application of optimization algorithms for the solution of (3).
+This page contains links to the Matlab code used in that paper. 
+
+
+
+<P><P>
+Download a  <A HREF="../matlab_impl_constr.zip">zip file with all Matlab functions</A> or download
+individual functions below. The functions are organized into three different
+subdirectories shown below.
+<UL>
+<LI><STRONG> optimization</STRONG> <BR>
+    Code for the solution of  <I> min f(x) </I>, where  <I>f: R<sup>n</sup> &rarr; R</I>.
+    Note, the optimization algorithms use the generic notation typically found in unconstrained
+    optimization, rather than the notation in (3). That is, in the optimization algorithms the unkowns are 
+    denoted by <I>x</I> and the objective function is denoted by  <I>f</I>.
+
+    <UL>
+    <LI> <A HREF="optimization/newton_cg.m">newton_cg.m</A>:
+          This is an implementation of the Newton-CG method described, e.g., in Section 7.1 of the book
+          <I>J. Nocedal and S. J. Wright: Numerical Optimization, second edition,
+             Springer Verlag, Berlin, Heidelberg, New York, 2006.</I>
+    <LI> <A HREF="optimization/lbfgs.m">lbfgs.m</A>:
+           This is an implementation of the limited BFGS method described, e.g., in Section 7.2 of the book
+          <I>J. Nocedal and S. J. Wright: Numerical Optimization, second edition,
+             Springer Verlag, Berlin, Heidelberg, New York, 2006.</I> 
+          However, this implementation uses an Armijo linear search or a backtracking line-search.
+          Both, unlike a line search that enforces the so-called Wolfe condition  (see the book by
+          Nocedal and Wright), do not guarantee that  <I>y<sub>k</sub><sup>T</sup>s<sub>k</sub>>0</I>
+          (here we use notation of Nocedal and Wright). We skip the update if 
+          <I>y<sub>k</sub><sup>T</sup>s<sub>k</sub>>0</I> is not satisfied. It is easy to replace
+          the existing line search algorithms with a line search algorithm that satisfies the Wolfe
+          conditions (for details see pages 60-62 in <I>J. Nocedal and S. J. Wright: 
+          Numerical Optimization, second edition, Springer Verlag, Berlin, Heidelberg, New York, 2006</I>).
+    <LI> <A HREF="optimization/mycg.m">mycg.m</A>: Implementation of the conjugate gradient
+         method for computation of approximate Newton steps. 
+         Called in <A HREF="optimization/newton_cg.m">newton_cg.m</A>.   
+     <LI> <A HREF="optimization/lnsrch_arm.m">lnsrch_arm.m</A>: Implementation of the 
+          Armijo line-search.
+    <LI> <A HREF="optimization/lnsrch_bt.m">lnsrch_bt.m</A>: Implementation of the
+          backtracking line-search. This implemetation follows that in 
+          <I>J. E. Dennis, Jr., and R. B. Schnabel: Numerical Methods for
+            Nonlinear Equations and Unconstrained Optimization, SIAM, Philadelphia, 1996</I>.
+     <LI> <A HREF="optimization/deriv_check.m">deriv_check.m</A>: 
+          Function that, given the user interface described below performs some basic derivative checks.
+    </UL>
+
+     To use the functions above, the user has provide the following Matlab functions.
+     All Matlab functions have an input parameter <TT>usr_par</TT>.
+     The variable <TT>usr_par</TT> is never accessed in the optmization codes,
+     but can be used to pass parameters and other problem specific information to the user provided functions.
+     <UL>
+     <LI> <TT> function [fx] = fval(x, usr_par) </TT>:  Evaluate  <I>f(x)</I>. 
+                          <TT>usr_par</TT> is a variable that is never accessed in the optmization codes,
+                          but can be used to pass parameters and other problem specific information
+                          to the  function.
+     <LI> <TT> function [gx] = grad(x, usr_par)</TT>:  Evaluate  <I>&nabla; f(x)</I>.
+     <LI> <TT> function [Hv] = Hessvec(v, x, usr_par)</TT>: Evaluate  <I>&nabla; <sup>2</sup> f(x) v</I>.
+                               (Only used in <A HREF="optimization/newton_cg.m">newton_cg.m</A>.)
+     <LI> <TT> function [Hv] = H0vec(v, usr_par)</TT>: Compute <I>H<sub>0</sub> v</I>,
+                     where <I>H<sub>0</sub> v</I> is the initial BFGS matrix, which
+                     is a replacement of the inverse of the Hessian of <I>f</I>.
+                     (Only used in <A HREF="optimization/lbfgs.m">lbfgs.m</A>.)
+     <LI> <TT> function [usr_par] = xnew( x, iter, usr_par)</TT>i: <TT>xnew</TT> is called 
+                  whenever a new <I>x</I> is generated and it is called before any of the three functions 
+                  <TT>fval</TT>, <TT>grad</TT>, and <TT>Hessvec</TT> are called with this new  <I>x</I>.
+     <LI> <TT> function [x1x2] = xprod( x1, x2, usr_par)</TT>: All optimization
+         algorithms above are implemented using an arbitrary inner product 
+         <I>< x<sub>1</sub>, x<sub>2</sub> ></I> between two vectors <I>x<sub>1</sub>, x<sub>2</sub></I>.
+         A properly chosen inner product can substantially improve the performance of the 
+         optimization algorithm. This is especially important for problems involving discretizations of
+         differential equations. See Section 2 of 
+          <A TARGET="TOP" HREF="http://doi.acm.org/10.1145/317275.317278">
+       M. Heinkenschloss and L. N. Vicente: An Interface Between Optimization and Application
+        for the Numerical Solution of Optimal Control Problems,
+        ACM Transactions on Mathematical Software, Vol. 25 (1999), pp. 157-190</A> for a relatively
+        elementary exposition  and more references. <BR>
+         In both examples below, we use the standard Euclidean inner product
+         <I>< x<sub>1</sub>, x<sub>2</sub> > = x<sub>1</sub><sup>T</sup> x<sub>2</sub></I> and
+         with this choice,  <A HREF="optimization/newton_cg.m">newton_cg.m</A>
+         <A HREF="optimization/lbfgs.m">lbfgs.m</A>, and <A HREF="optimization/mycg.m">mycg.m</A>
+         correspond to the Newton-CG, LBFGS and conjugate gradient methods discussed, e.g.,
+         in  <I>J. Nocedal and S. J. Wright: Numerical Optimization, second edition,
+             Springer Verlag, Berlin, Heidelberg, New York, 2006.</I>
+     </UL>
+
+
+<P>
+<LI><STRONG> rosenbrock</STRONG> <BR>
+     The codes in this section apply <A HREF="optimization/newton_cg.m">newton_cg.m</A>
+     and  <A HREF="optimization/lbfgs.m">lbfgs.m</A> to minimize the 2D Rosenbrock function,
+     i.e., to solve
+     <BR>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+     <I>  min (1-x<sub>1</sub>)<sup>2</sup> + 100( x<sub>1</sub> - x<sub>1</sub><sup>2</sup>)<sup>2</sup></I>.
+     <BR>
+     This is not an implicitly constrained problem, but is included to illustrate how to apply
+     the optimization algorithms to a simple model problem.
+     <UL>
+    <LI> <A HREF="rosenbrock/optimization_driver.m">optimization_driver.m</A>:
+             The main script.
+    <LI> <A HREF="rosenbrock/fval.m">fval.m</A>,
+         <A HREF="rosenbrock/grad.m">grad.m</A>,
+         <A HREF="rosenbrock/Hessvec.m">Hessvec.m</A>,
+         <A HREF="rosenbrock/H0vec.m">H0vec.m</A>,
+         <A HREF="rosenbrock/xnew.m">xnew.m</A>,
+         <A HREF="rosenbrock/xprod.m">xprod.m</A>:
+             Implementation of the interface to the optimizers.
+    </UL>
+
+
+<P>
+<LI><STRONG> burgers</STRONG> <BR>
+     The codes in this section apply <A HREF="optimization/newton_cg.m">newton_cg.m</A>
+     and  <A HREF="optimization/lbfgs.m">lbfgs.m</A> to solve the discretized optimal control
+     problem governed by Burgers equation as described in
+     the paper <A HREF="../papers/MHeinkenschloss_2008a.html">M. Heinkenschloss:
+     Numerical Solution of Implicitly Constrained Optimization Problems</A>.
+      <UL>
+    <LI> <A HREF="burgers/optimization_driver.m">optimization_driver.m</A>:
+             The main script.
+    <LI> <A HREF="burgers/probgen.m">probgen.m</A>: Computes quantities like the
+              stiffness matrix <I>A<sub>h</sub></I>. These are stored as global variables.
+    <LI> <A HREF="burgers/state.m">state.m</A>: Compute a solution of
+             the discretized Burgers equation.
+    <LI> <A HREF="burgers/adjoint.m">adjoint.m</A>: Compute a solution of
+             the discre adjopint equation.
+    <LI> <A HREF="burgers/Ny.m">Ny.m</A>, <A HREF="burgers/Nyp.m">Nyp.m</A>:
+             Evaluate the nonlinearity in the discretized Burgers equation and the Jacobian of the 
+             nonlinearity in the discretized Burgers equation, respectively.
+    <LI> <A HREF="burgers/xnew.m">xnew.m</A>: Solve the Burgers equation and
+         solve the adjoint equation. The solution to Burgers equation and to the adjoint equation
+         are stored as global variables so that they can be accessed by 
+          <A HREF="burgers/fval.m">fval.m</A>,
+         <A HREF="burgers/grad.m">grad.m</A>, and
+         <A HREF="burgers/Hessvec.m">Hessvec.m</A>.
+         Furthermore, the current control, the state and the adjoint are plotted.
+         (Note that we could have computed the solution to the adjoint equation later in
+          <A HREF="burgers/grad.m">grad.m</As>).
+
+    <LI> <A HREF="burgers/fval.m">fval.m</A>,
+         <A HREF="burgers/grad.m">grad.m</A>,
+         <A HREF="burgers/Hessvec.m">Hessvec.m</A>:
+         Implemtentation of function evaluation, gradient evaluation using the adjoint approach,
+         and Hessian-times-vector computation.
+     <LI> <A HREF="burgers/H0vec.m">H0vec.m</A>: Compute the 
+     <LI> <A HREF="burgers/xprod.m">xprod.m</A>:
+           For two vectors <I>x<sub>1</sub>, x<sub>2</sub></I>
+           this function returns the  Euclidean inner product <I>x<sub>1</sub><sup>T</sup> x<sub>2</sub></I>.
+    </UL>
+</UL>
+
+
+
+
+<p>
+<HR SIZE=4>
+
+<P>
+<HR> <!--------------------------------------------------------->
+<P>
+<P><SCRIPT LANGUAGE="JavaScript"><!---//hide script from old browsers
+document.write( "<BR>Last updated "+document.lastModified);
+//end hiding contents ---></SCRIPT>
+</P>
+
+
+</BODY>
+</HTML>

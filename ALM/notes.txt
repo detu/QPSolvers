@@ -1,1 +1,3 @@
 http://joelkaardal.com/links/tutorials/augmented-lagrangian.html
+https://github.com/rensor/fminsqp
+https://github.com/rensor/fminslp

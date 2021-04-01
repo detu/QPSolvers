@@ -10,7 +10,10 @@ struct GradProj{
         kku = ub_;
         kkl = lb_;
         // There should be a checking that for every element ub_ > lb_ here !
-
+        //double fc =
+        Eigen::VectorXd gc  = Q_*x_ + b_;
+        Eigen::VectorXd xt  = kkProj(xc - gc, kku, kkl);
+        Eigen::VectorXd pgc = xc - xt;
     }
 
     Eigen::VectorXd solve() const noexcept{

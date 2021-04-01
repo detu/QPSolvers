@@ -20,4 +20,6 @@ message("${EIGEN3_INCLUDE_DIR}")
 #    matlab_add_mex(NAME ${t} SRC ${t}.cpp	LINK_TO ${MATLAB_LIBRARIES} ${MUMPS_LIBRARIES})
 #ENDFOREACH(t ${EIG_MEXES})
 
-add_executable(devQP main.cpp)
+#add_executable(devQP function.h main.cpp)
+include_directories(${PROJECT_SOURCE_DIR})
+add_executable(simple simple.cc)

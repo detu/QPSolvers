@@ -18,6 +18,11 @@ struct State {
   vector_t gradient;   // The gradient in x.
   matrix_t hessian;    // The Hessian in x;
 
+  vector_t lb;         // lower bound constraint
+  vector_t ub;         // upper bound
+  matrix_t Aeq;        // equality constraint Aeq * x = beq
+  vector_t beq;
+
   // TODO(patwie): There is probably a better way.
   State() : dim(-1), order(-1) {}
 
@@ -91,6 +96,24 @@ class Function {
       this->Hessian(x, &state.hessian);
     }
     return state;
+  }
+
+  virtual State<scalar_t, vector_t, hessian_t> Eval(const matrix_t &Aeq, const vector_t &beq, const vector_t &lb , const vector_t &ub, const vector_t &x,
+                                                      const int order = 2) const {
+      State<scalar_t, vector_t, hessian_t> state(x.rows(), order);
+      state.value = this->operator()(x);
+      state.x     = x;
+      state.Aeq   = Aeq;
+      state.beq   = beq;
+      state.lb    = lb;
+      state.ub    = ub;
+      if (order >= 1) {
+          this->Gradient(x, &state.gradient);
+      }
+      if (order >= 2) {
+          this->Hessian(x, &state.hessian);
+      }
+      return state;
   }
 };
 

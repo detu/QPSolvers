@@ -205,7 +205,7 @@ class Solver {
 
   // Minimizes with bound and equality constraints
   virtual std::tuple<function_state_t, state_t> Minimize(const function_t &function, const matrix_t &Aeq, const vector_t &beq, const vector_t &ub, const vector_t &lb, const vector_t &x0){
-
+      return this->Minimize(function, function.Eval(Aeq, beq, lb, ub, x0, this->Order()));
   }
 
   virtual std::tuple<function_state_t, state_t> Minimize(

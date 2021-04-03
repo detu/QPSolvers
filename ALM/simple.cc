@@ -38,15 +38,20 @@ class Function : public FunctionXd {
 
 int main(int argc, char const *argv[]) {
   // using Solver = cppoptlib::solver::NewtonDescent<Function>;
-  // using Solver = cppoptlib::solver::GradientDescent<Function>;
+   using Solver = cppoptlib::solver::GradientDescent<Function>;
   // using Solver = cppoptlib::solver::ConjugatedGradientDescent<Function>;
   // using Solver = cppoptlib::solver::Bfgs<Function>;
   // using Solver = cppoptlib::solver::Lbfgs<Function>;
-  using Solver = cppoptlib::solver::Lbfgsb<Function>;
+  // using Solver = cppoptlib::solver::Lbfgsb<Function>;
 
   Function f;
   Function::vector_t x(2);
   x << -1, 2;
+
+  Function::vector_t lb(2);
+  Function::vector_t ub(2);
+  Function::matrix_t Aeq(2,2);
+  Function::vector_t beq(2);
 
   auto state = f.Eval(x);
   std::cout << "this" << std::endl;
@@ -60,7 +65,10 @@ int main(int argc, char const *argv[]) {
 
   Solver solver;
 
-  auto [solution, solver_state] = solver.Minimize(f, x);
+  //auto [solution, solver_state] = solver.Minimize(f, x);
+
+  auto [solution, solver_state] = solver.Minimize(f, Aeq,beq,ub,lb,x);
+
   std::cout << "argmin " << solution.x.transpose() << std::endl;
   std::cout << "f in argmin " << solution.value << std::endl;
   std::cout << "iterations " << solver_state.num_iterations << std::endl;

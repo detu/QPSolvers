@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(devQP)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
-#set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
 find_package(Eigen3 REQUIRED)
 find_package(MUMPS REQUIRED)

@@ -3,7 +3,7 @@
 %
 % Augmented Lagrangian method for the solution of    min f(x)   
 %
-% alm computes the search direction using the CG method applied
+% alm computes the search direction using the Augmented Lagrangian method applied
 % to    min < gradf(x), s > + 0.5 * < hessf(x)*s, s >
 % and it computes the new iterate  x + stepsize* s,
 % where the step size is computed using a backtracking linear search 
@@ -101,8 +101,8 @@ stepsize = 1;
 snorm    = 2*stol;
 
 %stopping criteria for newton
-while ( ~(gnorm < gtol | stepsize*snorm < stol ) ...
-        & iter <= maxit & iflag == 0)
+while ( ~(gnorm < gtol || stepsize*snorm < stol ) ...
+        && iter <= maxit && iflag == 0)
    
    % Compute search direction
    tolcg    = min(gnorm^2, 0.01*gnorm);
@@ -111,7 +111,7 @@ while ( ~(gnorm < gtol | stepsize*snorm < stol ) ...
    [s , res, itercg, iflagcg] = mycg( @(s)Hessvec(s,x,usr_par), s, -g, [], max_itcg, tolcg, usr_par); 
    
    % check CG error flag
-   if( itercg == 0 & (iflagcg == 2 | iflagcg == 3) )
+   if( itercg == 0 && (iflagcg == 2 || iflagcg == 3) )
       % Negative eigenvalues was detected in Hessian. Take negative 
       % gradient direction if this occurred in first CG iteration
       s = -g;

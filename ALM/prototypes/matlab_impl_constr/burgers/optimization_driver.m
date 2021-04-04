@@ -60,7 +60,7 @@ fprintf(1,'\n\n Solve the optimal control problem using')
 % set initial iterate
 u = zeros((nx+1)*(nt+1),1);
 
-optimizer = 2;
+optimizer = 1;
 
 if( optimizer == 1)
     fprintf(1,' Newton''s method\n')

@@ -1,6 +1,6 @@
-function [x,histout,costdata] = gradproj(x0,f,up,low,tol,maxit)
+function [x,histout,costdata,xhist] = gradproj(x0,f,up,low,tol,maxit)
 %
-% C. T. Kelley, June 11, 1998
+% C. T. Kelley, June 11, 199
 %
 % This code comes with no guarantee or warranty of any kind.
 %
@@ -71,11 +71,11 @@ xt     = kk_proj(xc - gc,kku,kkl);
 pgc    = xc - kk_proj(xc - gc,kku,kkl);
 ia     = 0; 
 
-for i=1:ndim; 
+for i=1:ndim 
   if(xc(i)==kku(i) || xc(i)==kkl(i)) 
     ia=ia+1; 
-  end; 
-end;
+  end 
+end
 
 ithist(1,5) = ia/ndim;
 ithist(1,1) = norm(pgc); 
@@ -83,12 +83,15 @@ ithist(1,2) = fc;
 ithist(1,4) = itc-1; 
 ithist(1,3) = 0; 
 
-while(norm(pgc) > tol & itc <= maxit)
+xhist        = zeros(maxit, length(x0));
+xhist(itc,:) = x0;
+
+while(norm(pgc) > tol && itc <= maxit)
     lambda = 1;
     xt     = kk_proj(xc-lambda*gc,kku,kkl); 
     ft     = feval(f,xt);
     numf   = numf+1;
-	  iarm   = 0; 
+	iarm   = 0; 
     itc    = itc+1;
     pl     = xc - xt; 
     fgoal  = fc-(pl'*pl)*(alp/lambda);
@@ -99,19 +102,19 @@ while(norm(pgc) > tol & itc <= maxit)
     qc   = ft;
 
 	while(ft > fgoal)
-    lambda = lambda*.1;
+        lambda = lambda*.1;
 		iarm   = iarm+1;
 		xt     = kk_proj(xc-lambda*gc,kku,kkl);
-    pl     = xc - xt;
+        pl     = xc - xt;
 		ft     = feval(f,xt); 
-    numf   = numf+1;
+        numf   = numf+1;
 		if(iarm > 10) 
 		  disp(' Armijo error in gradient projection')
-      histout  = ithist(1:itc,:); 
-      costdata = [numf, numg, numh];
+          histout  = ithist(1:itc,:); 
+          costdata = [numf, numg, numh];
 		  return; 
-    end
-    fgoal=fc-(pl'*pl)*(alp/lambda);
+        end
+        fgoal=fc-(pl'*pl)*(alp/lambda);
 	end
 	
   xc      = xt; 
@@ -119,22 +122,24 @@ while(norm(pgc) > tol & itc <= maxit)
   numf    = numf+1; 
   numg    = numg+1;
   pgc     = xc - kk_proj(xc-gc,kku,kkl); 
-	ithist(itc,1) = norm(pgc); 
+  ithist(itc,1) = norm(pgc); 
   ithist(itc,2) = fc; 
-	ithist(itc,4) = itc-1; 
+  ithist(itc,4) = itc-1; 
   ithist(itc,3) = iarm;
   ia      = 0; 
-  for i=1:ndim; 
+  for i=1:ndim 
     if(xc(i) == kku(i) || xc(i)==kkl(i)) 
       ia = ia+1; 
-    end; 
-  end;
+    end
+  end
   ithist(itc,5) = ia/ndim;
+  xhist(itc,:)  = xc;
 end
 
 x        = xc; 
 histout  = ithist(1:itc,:); 
 costdata =[numf, numg, numh];
+xhist    = xhist(1:min(itc,maxit),:)';
 
 % projection onto active set
 function px = kk_proj(x,kku,kkl)

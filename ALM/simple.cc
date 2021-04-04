@@ -101,12 +101,25 @@ int main(int argc, char const *argv[]) {
   // 2. modified gradient and hessian values.
 
   //auto [solution, solver_state] = solver.Minimize(f, Aeq,beq,ub,lb,x);
-    auto [solution, solver_state] = solver.Minimize(f,x,lambda,c);
+  double cons{0};
+  double eta{0.1};
+  while(state.gradient.template lpNorm<Eigen::Infinity>() > 1e-6) {
+      auto[solution, solver_state] = solver.Minimize(f, x, lambda, c);
+      state = f.Eval(solution.x,solution.lambda, solution.c);
 
-  std::cout << "argmin " << solution.x.transpose() << std::endl;
-  std::cout << "f in argmin " << solution.value << std::endl;
-  std::cout << "iterations " << solver_state.num_iterations << std::endl;
-  std::cout << "status " << solver_state.status << std::endl;
+      // compute constraint value
+      cons = solution.x[0]*solution.x[0] + solution.x[1]*solution.x[1] - 1;
+      if (cons > eta){
+
+      } else {
+
+      }
+  }
+
+//  std::cout << "argmin " << solution.x.transpose() << std::endl;
+//  std::cout << "f in argmin " << solution.value << std::endl;
+//  std::cout << "iterations " << solver_state.num_iterations << std::endl;
+//  std::cout << "status " << solver_state.status << std::endl;
 
   return 0;
 }

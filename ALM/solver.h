@@ -198,15 +198,19 @@ class Solver {
   virtual void InitializeSolver(const function_state_t & /*initial_state*/) {}
 
   // Minimizes a given function and returns the function state
-  virtual std::tuple<function_state_t, state_t> Minimize(
-      const function_t &function, const vector_t &x0) {
-    return this->Minimize(function, function.Eval(x0, this->Order()));
-  }
+//  virtual std::tuple<function_state_t, state_t> Minimize(
+//      const function_t &function, const vector_t &x0) {
+//    return this->Minimize(function, function.Eval(x0, this->Order()));
+//  }
 
   // Minimizes with bound and equality constraints
-  virtual std::tuple<function_state_t, state_t> Minimize(const function_t &function, const matrix_t &Aeq, const vector_t &beq, const vector_t &ub, const vector_t &lb, const vector_t &x0){
-      return this->Minimize(function, function.Eval(Aeq, beq, lb, ub, x0, this->Order()));
-  }
+//  virtual std::tuple<function_state_t, state_t> Minimize(const function_t &function, const matrix_t &Aeq, const vector_t &beq, const vector_t &ub, const vector_t &lb, const vector_t &x0){
+//      return this->Minimize(function, function.Eval(Aeq, beq, lb, ub, x0, this->Order()));
+//  }
+
+    virtual std::tuple<function_state_t, state_t> Minimize(const function_t &function, const vector_t &x0, const scalar_t lambda, const scalar_t c){
+        return this->Minimize(function, function.Eval(x0, lambda, c, this->Order()));
+    }
 
   virtual std::tuple<function_state_t, state_t> Minimize(
       const function_t &function, const function_state_t &initial_state) {

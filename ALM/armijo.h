@@ -19,21 +19,21 @@ class Armijo {
    *
    * @return step-width
    */
-  static scalar_t Search(const vector_t &x, const vector_t &search_direction,
+  static scalar_t Search(const vector_t &x, const scalar_t lambda, const scalar_t p, const vector_t &search_direction,
                          const function_t &function,
                          const scalar_t alpha_init = 1.0) {
     const scalar_t c = 0.2;
     const scalar_t rho = 0.9;
     scalar_t alpha = alpha_init;
-    scalar_t f = function(x + alpha * search_direction);
-    const scalar_t f_in = function(x);
+    scalar_t f = function(x + alpha * search_direction, lambda, p);
+    const scalar_t f_in = function(x, lambda, p);
     vector_t grad(x.rows());
-    function.Gradient(x, &grad);
+    function.Gradient(x, lambda, p, &grad);
     const scalar_t Cache = c * grad.dot(search_direction);
 
     while (f > f_in + alpha * Cache) {
       alpha *= rho;
-      f = function(x + alpha * search_direction);
+      f = function(x + alpha * search_direction, lambda, p);
     }
 
     return alpha;
@@ -55,25 +55,25 @@ class Armijo<function_t, 2> {
    *
    * @return step-width
    */
-  static scalar_t Search(const vector_t &x, const vector_t &search_direction,
+  static scalar_t Search(const vector_t &x, const scalar_t lambda, const scalar_t penalty, const vector_t &search_direction,
                          const function_t &function) {
     const scalar_t c = 0.2;
     const scalar_t rho = 0.9;
     scalar_t alpha = 1.0;
 
-    scalar_t f = function(x + alpha * search_direction);
-    const scalar_t f_in = function(x);
+    scalar_t f = function(x + alpha * search_direction, lambda, penalty);
+    const scalar_t f_in = function(x, lambda, penalty);
     hessian_t hessian(x.rows(), x.rows());
-    function.Hessian(x, &hessian);
+    function.Hessian(x, lambda, penalty, &hessian);
     vector_t grad(x.rows());
-    function.Gradient(x, &grad);
+    function.Gradient(x, lambda, penalty, &grad);
     const scalar_t Cache = c * grad.dot(search_direction) +
                            0.5 * c * c * search_direction.transpose() *
                                (hessian * search_direction);
 
     while (f > f_in + alpha * Cache) {
       alpha *= rho;
-      f = function(x + alpha * search_direction);
+      f = function(x + alpha * search_direction, lambda, penalty);
     }
     return alpha;
   }

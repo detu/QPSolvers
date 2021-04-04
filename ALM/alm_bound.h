@@ -6,10 +6,12 @@
 #include "Eigen/Dense"
 #include "solver.h"  // NOLINT
 
+// Hardcore constraint Problem 19.3 of book Michael Bierlaier
+
 namespace cppoptlib::solver {
 
 template <typename function_t>
-class NewtonDescent : public Solver<function_t> {
+class ALMBound : public Solver<function_t> {
  private:
   using Superclass = Solver<function_t>;
   using state_t = typename Superclass::state_t;
@@ -32,6 +34,12 @@ class NewtonDescent : public Solver<function_t> {
   function_state_t OptimizationStep(const function_t &function,
                                     const function_state_t &current,
                                     const state_t & /*state*/) override {
+
+    // create k = 0 for initial and next for the rest
+    // check constraint violation
+    // update Lagrange multiplier and constant
+    // update penalty and constraint violation
+
     function_state_t next = current;
 
     constexpr scalar_t safe_guard = 1e-5;
@@ -40,13 +48,18 @@ class NewtonDescent : public Solver<function_t> {
 
     const vector_t delta_x = hessian.lu().solve(-next.gradient);
     const scalar_t rate =
-        linesearch::Armijo<function_t, 2>::Search(next.x, delta_x, function);
+        linesearch::Armijo<function_t, 2>::Search(next.x, next.lambda, next.c, delta_x, function);
 
-    return function.Eval(next.x + rate * delta_x, 2);
+    return function.Eval(next.x + rate * delta_x, next.lambda, next.c , 2);
   }
 
  private:
   int dim_;
+
+  vector_t NewtonLineSearch(){
+
+  }
+
 };
 
 }  // namespace cppoptlib::solver

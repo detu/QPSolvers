@@ -213,7 +213,7 @@ class Solver {
     }
 
   virtual std::tuple<function_state_t, state_t> Minimize(
-      const function_t &function, const function_state_t &initial_state) {
+    const function_t &function, const function_state_t &initial_state) {
     // Solver state during the optimization.
     state_t solver_state;
     // Function state during the optimization.
@@ -244,6 +244,10 @@ class Solver {
   virtual function_state_t OptimizationStep(const function_t &function,
                                             const function_state_t &current,
                                             const state_t &state) = 0;
+
+  void setStoppingCriteria(const scalar_t gradTol){
+      stopping_state_.gradient_norm = gradTol;
+  }
 
  protected:
   state_t stopping_state_;    // Specifies when to stop.

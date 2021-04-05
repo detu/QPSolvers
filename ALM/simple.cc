@@ -102,16 +102,30 @@ int main(int argc, char const *argv[]) {
 
   //auto [solution, solver_state] = solver.Minimize(f, Aeq,beq,ub,lb,x);
   double cons{0};
-  double eta{0.1};
-  while(state.gradient.template lpNorm<Eigen::Infinity>() > 1e-6) {
-      auto[solution, solver_state] = solver.Minimize(f, x, lambda, c);
+  double eta0{0.1258925};
+  double c0{10};
+  double epsilon0{1/c0};
+  double tau{10};
+  double alpha{0.1};
+  double beta{0.9};
+  double epsilonk = 1/c;
+  double etak = eta0 / pow(c,alpha);
+  double eta{1e-6};
+  while(state.gradient.template lpNorm<Eigen::Infinity>() > eta) {
+      solver.setStoppingCriteria(epsilonk);
+      auto[solution, solver_state] = solver.Minimize(f, x, lambda, c); // think how to supply stopping criteria here!
       state = f.Eval(solution.x,solution.lambda, solution.c);
 
       // compute constraint value
       cons = solution.x[0]*solution.x[0] + solution.x[1]*solution.x[1] - 1;
-      if (cons > eta){
-
+      if (cons <= etak){
+          lambda   = lambda + c*cons;
+          epsilonk = epsilonk/c;
+          etak     = etak / pow(c,beta);
       } else {
+          c        = tau*c;
+          epsilonk = epsilon0/c;
+          etak     = eta0/pow(c,alpha);
 
       }
   }

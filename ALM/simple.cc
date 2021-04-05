@@ -44,20 +44,20 @@ public:
     using FunctionXd::hessian_t;
     using FunctionXd::vector_t;
 
-    scalar_t operator()(const vector_t &x, const scalar_t lambda, const scalar_t p) const override {
-        return 2 * ( x[0]*x[0] + x[1]*x[1] - 1 ) - x[0] + lambda * (x[0]*x[0] + x[1]*x[1] - 1) + p/2 * ((x[0]*x[0] + x[1]*x[1] - 1)*(x[0]*x[0] + x[1]*x[1] - 1));
+    scalar_t operator()(const vector_t &x, const scalar_t lambda, const scalar_t c) const override {
+        return 2 * ( x[0]*x[0] + x[1]*x[1] - 1 ) - x[0] + lambda * (x[0]*x[0] + x[1]*x[1] - 1) + c/2 * ( (x[0]*x[0] + x[1]*x[1] - 1) * (x[0]*x[0] + x[1]*x[1] - 1) );
     }
 
     void Gradient(const vector_t &x, const scalar_t lambda, const scalar_t c, vector_t *grad) const override {
-        (*grad)[0] = 2 * x[0] - 1 + 2*lambda*x[0] + c/2 * (2*(x[0]*x[0] + x[1]*x[1] - 1)*2*x[0]);
-        (*grad)[1] = 2 * x[1] + 2*lambda*x[1] + c/2* (2*(x[0]*x[0] + x[1]*x[1] - 1)*2*x[1]);
+        (*grad)[0] = 4 * x[0] - 1 + 2*lambda*x[0] + c * ( (x[0]*x[0] + x[1]*x[1] - 1) * 2 * x[0] );
+        (*grad)[1] = 4 * x[1] + 2*lambda*x[1] + c * ( (x[0]*x[0] + x[1]*x[1] - 1) * 2 * x[1] );
     }
 
     void Hessian(const vector_t &x, const scalar_t lambda, const scalar_t c, hessian_t *hessian) const override {
-        (*hessian)(0, 0) = 2 + 2*lambda + 2*c*(3*x[0]*x[0] + x[1]*x[1] - 1);
-        (*hessian)(0, 1) = x[1]*x[1];
-        (*hessian)(1, 0) = x[0]*x[0];
-        (*hessian)(1, 1) = 2 + 2*lambda + 2*c*(x[0]*x[0] + 3*x[1]*x[1] - 1);
+        (*hessian)(0, 0) = 4 + 2*lambda + 2*c*(3*x[0]*x[0] + x[1]*x[1] - 1);
+        (*hessian)(0, 1) = 4*c*x[1]*x[0];
+        (*hessian)(1, 0) = 4*c*x[0]*x[1];
+        (*hessian)(1, 1) = 4 + 2*lambda + 2*c*(x[0]*x[0] + 3*x[1]*x[1] - 1);
     }
 };
 
@@ -74,7 +74,7 @@ int main(int argc, char const *argv[]) {
   Function::vector_t x(2);
   x << -1.0, 0.1;
   Function::scalar_t lambda(0);
-  Function::scalar_t c(1);
+  Function::scalar_t c(10);
 
   Function::vector_t lb(2);
   Function::vector_t ub(2);
@@ -129,10 +129,9 @@ int main(int argc, char const *argv[]) {
 
       }
       x = solution.x;
-      solver.setStoppingCriteria(epsilonk);
   }
 
-//  std::cout << "argmin " << solution.x.transpose() << std::endl;
+  std::cout << "argmin " << x.transpose() << std::endl;
 //  std::cout << "f in argmin " << solution.value << std::endl;
 //  std::cout << "iterations " << solver_state.num_iterations << std::endl;
 //  std::cout << "status " << solver_state.status << std::endl;

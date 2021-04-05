@@ -128,6 +128,8 @@ int main(int argc, char const *argv[]) {
           etak     = eta0/pow(c,alpha);
 
       }
+      x = solution.x;
+      solver.setStoppingCriteria(epsilonk);
   }
 
 //  std::cout << "argmin " << solution.x.transpose() << std::endl;

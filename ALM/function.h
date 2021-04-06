@@ -124,13 +124,15 @@ class Function {
 //      return state;
 //  }
 
-    virtual State<scalar_t, vector_t, hessian_t> Eval(const vector_t &x, const scalar_t lambda, const scalar_t c,
+    virtual State<scalar_t, vector_t, hessian_t> Eval(const vector_t &x, const scalar_t lambda, const scalar_t c, const vector_t &lb , const vector_t &ub,
                                                       const int order = 2) const {
         State<scalar_t, vector_t, hessian_t> state(x.rows(), order);
         state.value = this->operator()(x,lambda,c);
         state.x      = x;
         state.lambda = lambda;
         state.c      = c;
+        state.lb     = lb;
+        state.ub     = ub;
         if (order >= 1) {
             this->Gradient(x, lambda, c, &state.gradient);
         }

@@ -81,7 +81,7 @@ int main(int argc, char const *argv[]) {
   Function::matrix_t Aeq(2,2);
   Function::vector_t beq(2);
 
-  auto state = f.Eval(x,lambda, c);
+  auto state = f.Eval(x,lambda, c, lb, ub);
   std::cout << "this" << std::endl;
 
   std::cout << f(x,lambda,c) << std::endl;
@@ -113,8 +113,8 @@ int main(int argc, char const *argv[]) {
   double eta{1e-6};
   while(state.gradient.template lpNorm<Eigen::Infinity>() > eta) {
       solver.setStoppingCriteria(epsilonk);
-      auto[solution, solver_state] = solver.Minimize(f, x, lambda, c); // think how to supply stopping criteria here!
-      state = f.Eval(solution.x,solution.lambda, solution.c);
+      auto[solution, solver_state] = solver.Minimize(f, x, lambda, c, lb, ub); // think how to supply stopping criteria here!
+      state = f.Eval(solution.x,solution.lambda, solution.c, solution.lb, solution.ub);
 
       // compute constraint value
       cons = solution.x[0]*solution.x[0] + solution.x[1]*solution.x[1] - 1;

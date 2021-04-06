@@ -50,15 +50,17 @@ class ALMBound : public Solver<function_t> {
     const scalar_t rate =
         linesearch::Armijo<function_t, 2>::Search(next.x, next.lambda, next.c, delta_x, function);
 
-    return function.Eval(next.x + rate * delta_x, next.lambda, next.c , 2);
+    // project (next.x + rate * delta_x to bound constraint using KKT_boundProjection method
+    return function.Eval(next.x + rate * delta_x, next.lambda, next.c , next.lb, next.ub, 2);
+  }
+
+  // Add a method for gradient projection for bound constraint
+  vector_t KKT_boundProjection(const function_state_t &current){
+      // see gradproj.m or GradProj.h
   }
 
  private:
   int dim_;
-
-  vector_t NewtonLineSearch(){
-
-  }
 
 };
 

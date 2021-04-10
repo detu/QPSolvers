@@ -37,6 +37,30 @@ using FunctionXd = cppoptlib::function::Function<double>;
 //  }
 //};
 
+//class Function : public FunctionXd {
+//public:
+//    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+//
+//    using FunctionXd::hessian_t;
+//    using FunctionXd::vector_t;
+//
+//    scalar_t operator()(const vector_t &x, const scalar_t lambda, const scalar_t c) const override {
+//        return 2 * ( x[0]*x[0] + x[1]*x[1] - 1 ) - x[0] + lambda * (x[0]*x[0] + x[1]*x[1] - 1) + c/2 * ( (x[0]*x[0] + x[1]*x[1] - 1) * (x[0]*x[0] + x[1]*x[1] - 1) );
+//    }
+//
+//    void Gradient(const vector_t &x, const scalar_t lambda, const scalar_t c, vector_t *grad) const override {
+//        (*grad)[0] = 4 * x[0] - 1 + 2*lambda*x[0] + c * ( (x[0]*x[0] + x[1]*x[1] - 1) * 2 * x[0] );
+//        (*grad)[1] = 4 * x[1] + 2*lambda*x[1] + c * ( (x[0]*x[0] + x[1]*x[1] - 1) * 2 * x[1] );
+//    }
+//
+//    void Hessian(const vector_t &x, const scalar_t lambda, const scalar_t c, hessian_t *hessian) const override {
+//        (*hessian)(0, 0) = 4 + 2*lambda + 2*c*(3*x[0]*x[0] + x[1]*x[1] - 1);
+//        (*hessian)(0, 1) = 4*c*x[1]*x[0];
+//        (*hessian)(1, 0) = 4*c*x[0]*x[1];
+//        (*hessian)(1, 1) = 4 + 2*lambda + 2*c*(x[0]*x[0] + 3*x[1]*x[1] - 1);
+//    }
+//};
+
 class Function : public FunctionXd {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -45,19 +69,19 @@ public:
     using FunctionXd::vector_t;
 
     scalar_t operator()(const vector_t &x, const scalar_t lambda, const scalar_t c) const override {
-        return 2 * ( x[0]*x[0] + x[1]*x[1] - 1 ) - x[0] + lambda * (x[0]*x[0] + x[1]*x[1] - 1) + c/2 * ( (x[0]*x[0] + x[1]*x[1] - 1) * (x[0]*x[0] + x[1]*x[1] - 1) );
+        return  -x[0] - x[1] + lambda * (x[0]*x[0] + x[1]*x[1] - 1) + c/2 * ( (x[0]*x[0] + x[1]*x[1] - 1) * (x[0]*x[0] + x[1]*x[1] - 1) );
     }
 
     void Gradient(const vector_t &x, const scalar_t lambda, const scalar_t c, vector_t *grad) const override {
-        (*grad)[0] = 4 * x[0] - 1 + 2*lambda*x[0] + c * ( (x[0]*x[0] + x[1]*x[1] - 1) * 2 * x[0] );
-        (*grad)[1] = 4 * x[1] + 2*lambda*x[1] + c * ( (x[0]*x[0] + x[1]*x[1] - 1) * 2 * x[1] );
+        (*grad)[0] = -1 + 2*lambda*x[0] + c * ( (x[0]*x[0] + x[1]*x[1] - 1) * 2 * x[0] );
+        (*grad)[1] = -1 + 2*lambda*x[1] + c * ( (x[0]*x[0] + x[1]*x[1] - 1) * 2 * x[1] );
     }
 
     void Hessian(const vector_t &x, const scalar_t lambda, const scalar_t c, hessian_t *hessian) const override {
-        (*hessian)(0, 0) = 4 + 2*lambda + 2*c*(3*x[0]*x[0] + x[1]*x[1] - 1);
+        (*hessian)(0, 0) = 2*lambda + 2*c*(3*x[0]*x[0] + x[1]*x[1] - 1);
         (*hessian)(0, 1) = 4*c*x[1]*x[0];
         (*hessian)(1, 0) = 4*c*x[0]*x[1];
-        (*hessian)(1, 1) = 4 + 2*lambda + 2*c*(x[0]*x[0] + 3*x[1]*x[1] - 1);
+        (*hessian)(1, 1) = 2*lambda + 2*c*(x[0]*x[0] + 3*x[1]*x[1] - 1);
     }
 };
 
@@ -72,7 +96,7 @@ int main(int argc, char const *argv[]) {
 
   Function f;
   Function::vector_t x(2);
-  x << -1.0, 0.1;
+  x << 2.0, -2.0;
   Function::scalar_t lambda(0);
   Function::scalar_t c(10);
 
@@ -111,6 +135,8 @@ int main(int argc, char const *argv[]) {
   double epsilonk = 1/c;
   double etak = eta0 / pow(c,alpha);
   double eta{1e-6};
+
+  // ganti stopping criteria buat ALM (liat buku N&W dan paper Andy)
   while(state.gradient.template lpNorm<Eigen::Infinity>() > eta) {
       solver.setStoppingCriteria(epsilonk);
       auto[solution, solver_state] = solver.Minimize(f, x, lambda, c, lb, ub); // think how to supply stopping criteria here!

@@ -2,14 +2,8 @@
 
 #include <iostream>
 
-#include "function.h"
-#include "bfgs.h"
-#include "conjugated_gradient_descent.h"
-#include "gradient_descent.h"
-#include "lbfgs.h"
-#include "lbfgsb.h"
-#include "newton_descent.h"
-#include "alm_bound.h"
+#include "Function.h"
+#include "NewtonALM.h"
 
 using FunctionXd = cppoptlib::function::Function<double>;
 
@@ -86,13 +80,6 @@ public:
 };
 
 int main(int argc, char const *argv[]) {
-  // using Solver = cppoptlib::solver::NewtonDescent<Function>;
-  // using Solver = cppoptlib::solver::GradientDescent<Function>;
-  // using Solver = cppoptlib::solver::ConjugatedGradientDescent<Function>;
-  // using Solver = cppoptlib::solver::Bfgs<Function>;
-  // using Solver = cppoptlib::solver::Lbfgs<Function>;
-  // using Solver = cppoptlib::solver::Lbfgsb<Function>;
-    using Solver = cppoptlib::solver::ALMBound<Function>;
 
   Function f;
   Function::vector_t x(2);
@@ -115,7 +102,7 @@ int main(int argc, char const *argv[]) {
   // std::cout << cppoptlib::utils::IsGradientCorrect(f, x) << std::endl;
   // std::cout << cppoptlib::utils::IsHessianCorrect(f, x) << std::endl;
 
-  Solver solver;
+    cppoptlib::solver::ALMBound<Function> solver;
 
   //auto [solution, solver_state] = solver.Minimize(f, x);
 

@@ -72,15 +72,11 @@ struct State {
                   current_function_state,
               const State &stop_state) {
     num_iterations++;
-    f_delta =
-        fabs(current_function_state.value - previous_function_state.value);
-    x_delta = (current_function_state.x - previous_function_state.x)
-                  .template lpNorm<Eigen::Infinity>();
-    gradient_norm =
-        current_function_state.gradient.template lpNorm<Eigen::Infinity>();
+    f_delta = fabs(current_function_state.value - previous_function_state.value);
+    x_delta = (current_function_state.x - previous_function_state.x).template lpNorm<Eigen::Infinity>();
+    gradient_norm = current_function_state.gradient.template lpNorm<Eigen::Infinity>();
 
-    if ((stop_state.num_iterations > 0) &&
-        (num_iterations > stop_state.num_iterations)) {
+    if ((stop_state.num_iterations > 0) && (num_iterations > stop_state.num_iterations)) {
       status = Status::IterationLimit;
       return;
     }
@@ -102,14 +98,12 @@ struct State {
         f_delta_violations = 0;
       }
     }
-    if ((stop_state.gradient_norm > 0) &&
-        (gradient_norm < stop_state.gradient_norm)) {
+    if ((stop_state.gradient_norm > 0) && (gradient_norm < stop_state.gradient_norm)) {
       status = Status::GradientNormViolation;
       return;
     }
     if (previous_function_state.order == 2) {
-      if ((stop_state.condition_hessian > 0) &&
-          (condition_hessian > stop_state.condition_hessian)) {
+      if ((stop_state.condition_hessian > 0) && (condition_hessian > stop_state.condition_hessian)) {
         status = Status::HessianConditionViolation;
         return;
       }
@@ -176,15 +170,11 @@ class Solver {
   using hessian_t = typename function_t::hessian_t;
 
   using function_state_t = typename function_t::state_t;
-  using callback_t =
-      std::function<void(const function_state_t &, const state_t &)>;
+  using callback_t = std::function<void(const function_state_t &, const state_t &)>;
 
  public:
-  explicit Solver(const State<scalar_t> &stopping_state =
-                      DefaultStoppingSolverState<scalar_t>())
-      : stopping_state_(stopping_state),
-        step_callback_(
-            GetDefaultStepCallback<scalar_t, vector_t, hessian_t>()) {}
+  explicit Solver(const State<scalar_t> &stopping_state = DefaultStoppingSolverState<scalar_t>())
+      : stopping_state_(stopping_state), step_callback_(GetDefaultStepCallback<scalar_t, vector_t, hessian_t>()) {}
 
   virtual ~Solver() = default;
 

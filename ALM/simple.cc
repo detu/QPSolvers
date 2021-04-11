@@ -4,6 +4,7 @@
 
 #include "Function.h"
 #include "NewtonALM.h"
+#include "ALM.h"
 
 using FunctionXd = cppoptlib::function::Function<double>;
 
@@ -102,7 +103,7 @@ int main(int argc, char const *argv[]) {
   // std::cout << cppoptlib::utils::IsGradientCorrect(f, x) << std::endl;
   // std::cout << cppoptlib::utils::IsHessianCorrect(f, x) << std::endl;
 
-    cppoptlib::solver::ALMBound<Function> solver;
+    cppoptlib::solver::NewtonBound<Function> solver;
 
   //auto [solution, solver_state] = solver.Minimize(f, x);
 

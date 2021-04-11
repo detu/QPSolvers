@@ -4,7 +4,7 @@
 
 #include "more_thuente.h"
 #include "Eigen/Core"
-#include "solver.h"  // NOLINT
+#include "Solver.h"  // NOLINT
 
 namespace cppoptlib::solver {
 template <typename function_t>

@@ -11,7 +11,7 @@
 namespace cppoptlib::solver {
 
 template <typename function_t>
-class ALMBound : public Solver<function_t> {
+class NewtonBound : public Solver<function_t> {
  private:
   using Superclass = Solver<function_t>;
   using state_t = typename Superclass::state_t;

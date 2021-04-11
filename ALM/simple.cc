@@ -93,6 +93,13 @@ int main(int argc, char const *argv[]) {
   Function::matrix_t Aeq(2,2);
   Function::vector_t beq(2);
 
+  // call ALM class
+  // auto[solution, solver_state] = ALM(f, x, lambda, c, Aeq, beq, lb, ub, params)
+  // atau
+  // auto [solution, solver_state] = ALM.solve();
+  // sebelumnya
+
+
   auto state = f.Eval(x,lambda, c, lb, ub);
   std::cout << "this" << std::endl;
 

@@ -13,13 +13,13 @@ namespace cppoptlib::solver {
 template <typename function_t>
 class NewtonBound : public Solver<function_t> {
  private:
-  using Superclass = Solver<function_t>;
-  using state_t = typename Superclass::state_t;
+  using Superclass  = Solver<function_t>;
+  using state_t     = typename Superclass::state_t;
 
-  using scalar_t = typename function_t::scalar_t;
-  using hessian_t = typename function_t::hessian_t;
-  using matrix_t = typename function_t::matrix_t;
-  using vector_t = typename function_t::vector_t;
+  using scalar_t   = typename function_t::scalar_t;
+  using hessian_t  = typename function_t::hessian_t;
+  using matrix_t   = typename function_t::matrix_t;
+  using vector_t   = typename function_t::vector_t;
   using function_state_t = typename function_t::state_t;
 
  public:

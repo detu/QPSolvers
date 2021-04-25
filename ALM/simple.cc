@@ -1,10 +1,8 @@
-// Copyright 2020, https://github.com/PatWie/CppNumericalSolvers
-
 #include <iostream>
 
 #include "Function.h"
 #include "NewtonALM.h"
-#include "ALM.h"
+
 
 using FunctionXd = cppoptlib::function::Function<double>;
 

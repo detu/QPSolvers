@@ -70,7 +70,8 @@ public:
   virtual ~Function() = default;
 
   // Computes the value of a function.
-  virtual scalar_t operator()(const vector_t &x, const scalar_t lambda, const scalar_t c) const = 0;
+  //virtual scalar_t operator()(const vector_t &x, const scalar_t lambda, const scalar_t c) const = 0;
+  virtual scalar_t operator()(const vector_t &x,  const matrix_t &H, const vector_t &f, const matrix_t &Aeq, const vector_t &beq, const vector_t lambda, const scalar_t c) const = 0;
 
   // Computes the gradient of a function.
   virtual void Gradient(const vector_t &x, const scalar_t lambda, const scalar_t c, vector_t *grad) const {

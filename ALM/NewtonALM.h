@@ -2,24 +2,24 @@
 #ifndef INCLUDE_CPPOPTLIB_SOLVER_ALM_BOUND_H_
 #define INCLUDE_CPPOPTLIB_SOLVER_ALM_BOUND_H_
 
-#include "armijo.h"
+#include "Armijo.h"
 #include "Eigen/Dense"
-#include "solver.h"  // NOLINT
+#include "Solver.h"  // NOLINT
 
 // Hardcore constraint Problem 19.3 of book Michael Bierlaier
 
 namespace cppoptlib::solver {
 
 template <typename function_t>
-class ALMBound : public Solver<function_t> {
+class NewtonBound : public Solver<function_t> {
  private:
-  using Superclass = Solver<function_t>;
-  using state_t = typename Superclass::state_t;
+  using Superclass  = Solver<function_t>;
+  using state_t     = typename Superclass::state_t;
 
-  using scalar_t = typename function_t::scalar_t;
-  using hessian_t = typename function_t::hessian_t;
-  using matrix_t = typename function_t::matrix_t;
-  using vector_t = typename function_t::vector_t;
+  using scalar_t   = typename function_t::scalar_t;
+  using hessian_t  = typename function_t::hessian_t;
+  using matrix_t   = typename function_t::matrix_t;
+  using vector_t   = typename function_t::vector_t;
   using function_state_t = typename function_t::state_t;
 
  public:
@@ -50,15 +50,17 @@ class ALMBound : public Solver<function_t> {
     const scalar_t rate =
         linesearch::Armijo<function_t, 2>::Search(next.x, next.lambda, next.c, delta_x, function);
 
-    return function.Eval(next.x + rate * delta_x, next.lambda, next.c , 2);
+    // project (next.x + rate * delta_x to bound constraint using KKT_boundProjection method
+    return function.Eval(next.x + rate * delta_x, next.lambda, next.c , next.lb, next.ub, 2);
+  }
+
+  // Add a method for gradient projection for bound constraint
+  vector_t KKT_boundProjection(const function_state_t &current){
+      // see gradproj.m or GradProj.h
   }
 
  private:
   int dim_;
-
-  vector_t NewtonLineSearch(){
-
-  }
 
 };
 

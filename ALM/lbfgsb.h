@@ -10,7 +10,7 @@
 #include "more_thuente.h"
 #include "Eigen/Core"
 #include "Eigen/LU"
-#include "solver.h"  // NOLINT
+#include "Solver.h"  // NOLINT
 
 namespace cppoptlib::solver {
 

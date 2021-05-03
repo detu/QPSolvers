@@ -54,19 +54,18 @@ struct State {
 
 template <class TScalar, int TDim = Eigen::Dynamic>
 class Function {
- private:
-  static const int Dim = TDim;
 
- public:
+public:
   using scalar_t = TScalar;
-  using vector_t = Eigen::Matrix<TScalar, Dim, 1>;
-  using hessian_t = Eigen::Matrix<TScalar, Dim, Dim>;
+  using vector_t = Eigen::Matrix<TScalar, TDim, 1>;
+  using hessian_t = Eigen::Matrix<TScalar, TDim, TDim>;
   using matrix_t = Eigen::Matrix<TScalar, Eigen::Dynamic, Eigen::Dynamic>;
   using index_t = typename vector_t::Index;
 
   using state_t = function::State<scalar_t, vector_t, hessian_t>;
 
- public:
+    static const int Dim = TDim;
+public:
   Function() = default;
   virtual ~Function() = default;
 
@@ -124,13 +123,15 @@ class Function {
 //      return state;
 //  }
 
-    virtual State<scalar_t, vector_t, hessian_t> Eval(const vector_t &x, const scalar_t lambda, const scalar_t c,
+    virtual State<scalar_t, vector_t, hessian_t> Eval(const vector_t &x, const scalar_t lambda, const scalar_t c, const vector_t &lb , const vector_t &ub,
                                                       const int order = 2) const {
         State<scalar_t, vector_t, hessian_t> state(x.rows(), order);
         state.value = this->operator()(x,lambda,c);
         state.x      = x;
         state.lambda = lambda;
         state.c      = c;
+        state.lb     = lb;
+        state.ub     = ub;
         if (order >= 1) {
             this->Gradient(x, lambda, c, &state.gradient);
         }

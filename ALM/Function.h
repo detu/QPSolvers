@@ -74,13 +74,16 @@ public:
   virtual scalar_t operator()(const vector_t &x,  const matrix_t &H, const vector_t &f, const matrix_t &Aeq, const vector_t &beq, const vector_t lambda, const scalar_t c) const = 0;
 
   // Computes the gradient of a function.
-  virtual void Gradient(const vector_t &x, const scalar_t lambda, const scalar_t c, vector_t *grad) const {
+  //virtual void Gradient(const vector_t &x, const scalar_t lambda, const scalar_t c, vector_t *grad) const {
     //utils::ComputeFiniteGradient(*this, x, grad);
-  }
+  //}
+  virtual void Gradient(const vector_t &x,  const matrix_t &H, const vector_t &f, const matrix_t &Aeq, const vector_t &beq, const vector_t lambda, const scalar_t c, vector_t *grad) const {};
+
   // Computes the Hessian of a function.
-  virtual void Hessian(const vector_t &x, const scalar_t lambda, const scalar_t c, hessian_t *hessian) const {
+  //virtual void Hessian(const vector_t &x, const scalar_t lambda, const scalar_t c, hessian_t *hessian) const {
     //utils::ComputeFiniteHessian(*this, x, hessian);
-  }
+  //}
+  virtual void Hessian(const vector_t &x,  const matrix_t &H, const vector_t &f, const matrix_t &Aeq, const vector_t &beq, const vector_t lambda, const scalar_t c, hessian_t *hessian) const {}
 
 //  virtual scalar_t ComputeAugmentedObjective(const vector_t &x, const vector_t &lambda, const TScalar c) const = 0;
 //  virtual void ModifiedGradient() const = 0;

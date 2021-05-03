@@ -13,14 +13,13 @@ public:
 
     using FunctionXd::hessian_t;
     using FunctionXd::vector_t;
-
-//    scalar_t operator()(const vector_t &x, const scalar_t lambda, const scalar_t c) const override {
-//        return  -x[0] - x[1] + lambda * (x[0]*x[0] + x[1]*x[1] - 1) + c/2 * ( (x[0]*x[0] + x[1]*x[1] - 1) * (x[0]*x[0] + x[1]*x[1] - 1) );
-//    }
+    
     scalar_t operator()(const vector_t &x, const matrix_t &H, const vector_t &f, const matrix_t &Aeq, const vector_t &beq, const vector_t lambda, const scalar_t c) const override {
-        //return 0.5*x.transpose()*H*x + f.transpose()*x + (lambda.transpose() * (Aeq * x - beq)) + (c/2 * ( (Aeq * x - beq).squaredNorm() ));
-        return static_cast<scalar_t>(0.5 * x.transpose() * H * x + f.transpose() * x +
-                                     lambda.transpose() * (Aeq * x - beq));
+        scalar_t c1 = 0.5 * x.transpose() * H * x;
+        scalar_t c2 = f.transpose() * x;
+        scalar_t c3 = lambda.transpose() * ( Aeq* x - beq);
+        scalar_t c4 = c/2 * (Aeq * x - beq).squaredNorm();
+        return ( c1 + c2 + c3 + c4 );
     }
 
     void Gradient(const vector_t &x, const scalar_t lambda, const scalar_t c, vector_t *grad) const override {

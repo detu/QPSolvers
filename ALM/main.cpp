@@ -1,5 +1,7 @@
-//#include "DirectQP.h"
 #include "NewtonLS.h"
+#include "Function.h"
+#include "NewtonALM.h"
+
 #include <Eigen/Dense>
 #include <iostream>
 

@@ -1,3 +1,6 @@
 http://joelkaardal.com/links/tutorials/augmented-lagrangian.html
 https://github.com/rensor/fminsqp
 https://github.com/rensor/fminslp
+
+before calling MATLAB:
+export LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libstdc++.so.6"

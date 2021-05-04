@@ -31,7 +31,7 @@ public:
     }
 };
 
-// almbound(H,f,Aeb,beq,lb,ub,x0,options)
+// [x, ..] = almbound(H,f,Aeb,beq,lb,ub,x0,lambda,options)
 // debug: save matrices and vectors in a *.mat file!
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
@@ -41,9 +41,29 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         if (nlhs != 1)
             throw std::invalid_argument("required one output arg");
 
-        Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> xi(0,0);
-        MxArrayToEigen(xi, prhs[0]);
-        plhs[0] = EigenToMxArray(xi);
+        //Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> xi(0,0);
+
+        Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> H;
+        Eigen::Vector<double,Eigen::Dynamic> f;
+        Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> Aeq;
+        Eigen::Vector<double,Eigen::Dynamic> beq;
+        Eigen::Vector<double,Eigen::Dynamic> lb;
+        Eigen::Vector<double,Eigen::Dynamic> ub;
+        Eigen::Vector<double,Eigen::Dynamic> x0;
+        Eigen::Vector<double,Eigen::Dynamic> lambda;
+
+        //MxArrayToEigen(xi, prhs[0]);
+
+        MxArrayToEigen(H, prhs[0]);
+        MxArrayToEigen(f, prhs[1]);
+        MxArrayToEigen(Aeq, prhs[2]);
+        MxArrayToEigen(beq, prhs[3]);
+        MxArrayToEigen(lb, prhs[4]);
+        MxArrayToEigen(ub, prhs[5]);
+        MxArrayToEigen(x0, prhs[6]);
+        MxArrayToEigen(lambda, prhs[7]);
+
+        //plhs[0] = EigenToMxArray(xi);
     }
     catch (std::exception& ex){
         mexErrMsgIdAndTxt("tmp::error", ex.what());

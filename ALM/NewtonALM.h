@@ -47,11 +47,12 @@ class NewtonBound : public Solver<function_t> {
         next.hessian + safe_guard * hessian_t::Identity(dim_, dim_);
 
     const vector_t delta_x = hessian.lu().solve(-next.gradient);
-    const scalar_t rate =
-        linesearch::Armijo<function_t, 2>::Search(next.x, next.lambda, next.c, delta_x, function);
+    //const scalar_t rate = linesearch::Armijo<function_t, 2>::Search(next.x, next.lambda, next.c, delta_x, function);
+      const scalar_t rate = linesearch::Armijo<function_t, 2>::Search(next.x, next.H, next.f, next.Aeq, next.beq, next.lambda, next.c, delta_x, function);
 
     // project (next.x + rate * delta_x to bound constraint using KKT_boundProjection method
-    return function.Eval(next.x + rate * delta_x, next.lambda, next.c , next.lb, next.ub, 2);
+    //return function.Eval(next.x + rate * delta_x, next.lambda, next.c, next.lb, next.ub, 2);
+      return function.Eval(next.x + rate * delta_x, next.H, next.f, next.Aeq, next.beq, next.lb, next.ub, next.lambda, next.c, 2);
   }
 
   // Add a method for gradient projection for bound constraint

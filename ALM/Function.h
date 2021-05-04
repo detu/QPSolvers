@@ -127,20 +127,39 @@ public:
 //      return state;
 //  }
 
-    virtual State<scalar_t, vector_t, hessian_t> Eval(const vector_t &x, const scalar_t lambda, const scalar_t c, const vector_t &lb , const vector_t &ub,
-                                                      const int order = 2) const {
+//    virtual State<scalar_t, vector_t, hessian_t> Eval(const vector_t &x, const scalar_t lambda, const scalar_t c, const vector_t &lb , const vector_t &ub,
+//                                                      const int order = 2) const {
+//        State<scalar_t, vector_t, hessian_t> state(x.rows(), order);
+//        state.value = this->operator()(x,lambda,c);
+//        state.x      = x;
+//        state.lambda = lambda;
+//        state.c      = c;
+//        state.lb     = lb;
+//        state.ub     = ub;
+//        if (order >= 1) {
+//            this->Gradient(x, lambda, c, &state.gradient);
+//        }
+//        if (order >= 2) {
+//            this->Hessian(x, lambda, c, &state.hessian);
+//        }
+//        return state;
+//    }
+
+    //almbound(H,f,Aeb,beq,lb,ub,x0,lambda,options)
+    virtual State<scalar_t, vector_t, hessian_t> Eval(const vector_t &x,  const matrix_t &H, const vector_t &f, const matrix_t &Aeq, const vector_t &beq, const vector_t &lb, const vector_t &ub,
+                                                      const vector_t &lambda, const scalar_t c, const int order = 2) const {
         State<scalar_t, vector_t, hessian_t> state(x.rows(), order);
-        state.value = this->operator()(x,lambda,c);
+        state.value = this->operator()(x,H, f, Aeq, beq, lambda,c);
         state.x      = x;
         state.lambda = lambda;
         state.c      = c;
         state.lb     = lb;
         state.ub     = ub;
         if (order >= 1) {
-            this->Gradient(x, lambda, c, &state.gradient);
+            this->Gradient(x, H, f, Aeq, beq, lambda, c, &state.gradient);
         }
         if (order >= 2) {
-            this->Hessian(x, lambda, c, &state.hessian);
+            this->Hessian(x, H, f, Aeq, beq, lambda, c, &state.hessian);
         }
         return state;
     }

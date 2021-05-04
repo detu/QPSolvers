@@ -64,6 +64,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         MxArrayToEigen(lambda, prhs[7]);
 
         //plhs[0] = EigenToMxArray(xi);
+
+        Function fx;
+        Function::scalar_t c(10);
+        auto state = fx.Eval(x0,lambda, c, lb, ub);
     }
     catch (std::exception& ex){
         mexErrMsgIdAndTxt("tmp::error", ex.what());

@@ -15,16 +15,16 @@ public:
         scalar_t c1 = 0.5 * x.transpose() * H * x;
         scalar_t c2 = f.transpose() * x;
         scalar_t c3 = lambda.transpose() * ( Aeq* x - beq);
-        scalar_t c4 = c/2 * (Aeq * x - beq).squaredNorm();
+        scalar_t c4 = c/2 * (Aeq * x - beq).squaredNorm() * (Aeq * x - beq).squaredNorm();
         return ( c1 + c2 + c3 + c4 );
     }
 
     void Gradient(const vector_t &x,  const matrix_t &H, const vector_t &f, const matrix_t &Aeq, const vector_t &beq, const vector_t &lambda, const scalar_t c, vector_t *grad) const override {
-        (*grad) = H * x + f.transpose() + Aeq * lambda.transpose() + c/2 * Aeq * Aeq.transpose();
+        *grad = H * x + f + Aeq * lambda + c * (Aeq*x - beq);
     }
 
     void Hessian(const vector_t &x,  const matrix_t &H, const vector_t &f, const matrix_t &Aeq, const vector_t &beq, const vector_t &lambda, const scalar_t c, hessian_t *hessian) const override {
-        (*hessian) = H;
+        *hessian = H;
     }
 };
 
@@ -58,8 +58,6 @@ int main(){
     auto state = fx.Eval(x0, H, f, Aeq, beq, lb, ub, lambda, c);
     std::cout << "this" << std::endl;
 
-
-
     cppoptlib::solver::NewtonBound<Function> solver;
 
     //double cons{0};
@@ -75,7 +73,6 @@ int main(){
     double etak = eta0 / pow(c,alpha);
     double eta{1e-6};
 
-
     // ganti stopping criteria buat ALM (liat buku N&W dan paper Andy)
     while(state.gradient.template lpNorm<Eigen::Infinity>() > eta) {
         solver.setStoppingCriteria(epsilonk);
@@ -83,7 +80,6 @@ int main(){
         state = fx.Eval(solution.x, solution.H, solution.f, solution.Aeq, solution.beq, solution.lb, solution.ub, solution.lambda, solution.c);
 
         // compute constraint value
-        //cons = solution.x[0]*solution.x[0] + solution.x[1]*solution.x[1] - 1;
         cons = solution.Aeq * solution.x - solution.beq;
         if (cons.norm() <= etak){
             lambda   = lambda + c*cons;

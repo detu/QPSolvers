@@ -155,6 +155,10 @@ public:
         state.value = this->operator()(x,H, f, Aeq, beq, lambda,c);
         state.x      = x;
         state.lambda = lambda;
+        state.H      = H;
+        state.f      = f;
+        state.Aeq    = Aeq;
+        state.beq    = beq;
         state.c      = c;
         state.lb     = lb;
         state.ub     = ub;

@@ -36,23 +36,19 @@ public:
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
     try {
-        if (nrhs != 1)
+        if (nrhs < 1)
             throw std::invalid_argument("required one input arg");
         if (nlhs != 1)
             throw std::invalid_argument("required one output arg");
 
-        //Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> xi(0,0);
-
         Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> H;
-        Eigen::Vector<double,Eigen::Dynamic> f;
+        Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> f;
         Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> Aeq;
-        Eigen::Vector<double,Eigen::Dynamic> beq;
-        Eigen::Vector<double,Eigen::Dynamic> lb;
-        Eigen::Vector<double,Eigen::Dynamic> ub;
-        Eigen::Vector<double,Eigen::Dynamic> x0;
-        Eigen::Vector<double,Eigen::Dynamic> lambda;
-
-        //MxArrayToEigen(xi, prhs[0]);
+        Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> beq;
+        Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> lb;
+        Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> ub;
+        Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> x0;
+        Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> lambda;
 
         MxArrayToEigen(H, prhs[0]);
         MxArrayToEigen(f, prhs[1]);
@@ -63,54 +59,57 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         MxArrayToEigen(x0, prhs[6]);
         MxArrayToEigen(lambda, prhs[7]);
 
-        //plhs[0] = EigenToMxArray(xi);
+//        plhs[0] = EigenToMxArray(lambda);
 
         Function fx;
         Function::scalar_t c(10);
         auto state = fx.Eval(x0, H, f, Aeq, beq, lb, ub, lambda, c);
         std::cout << "this" << std::endl;
 
+        plhs[0] = EigenToMxArray(state.Aeq);
+
 //        std::cout << fx(x0,lambda,c) << std::endl;
 //        std::cout << state.gradient << std::endl;
 //        std::cout << state.hessian << std::endl;
 
-        cppoptlib::solver::NewtonBound<Function> solver;
-
-        //double cons{0};
-        Eigen::Vector<double, Eigen::Dynamic> cons;
-        Eigen::Vector<double, Eigen::Dynamic> x;
-        double eta0{0.1258925};
-        double c0{10};
-        double epsilon0{1/c0};
-        double tau{10};
-        double alpha{0.1};
-        double beta{0.9};
-        double epsilonk = 1/c;
-        double etak = eta0 / pow(c,alpha);
-        double eta{1e-6};
-
-        // ganti stopping criteria buat ALM (liat buku N&W dan paper Andy)
-        while(state.gradient.template lpNorm<Eigen::Infinity>() > eta) {
-            solver.setStoppingCriteria(epsilonk);
-            auto[solution, solver_state] = solver.Minimize(fx, x0, H, f, Aeq, beq,  lb, ub, lambda, c); // think how to supply stopping criteria here!
-            state = fx.Eval(solution.x, solution.H, solution.f, solution.Aeq, solution.beq, solution.lb, solution.ub, solution.lambda, solution.c);
-
-            // compute constraint value
-            //cons = solution.x[0]*solution.x[0] + solution.x[1]*solution.x[1] - 1;
-            cons = solution.Aeq * solution.x - solution.beq;
-            if (cons.norm() <= etak){
-                lambda   = lambda + c*cons;
-                epsilonk = epsilonk/c;
-                etak     = etak / pow(c,beta);
-            } else {
-                c        = tau*c;
-                epsilonk = epsilon0/c;
-                etak     = eta0/pow(c,alpha);
-
-            }
-            x = solution.x;
-        }
-        plhs[0] = EigenToMxArray(x);
+//        cppoptlib::solver::NewtonBound<Function> solver;
+//
+//        //double cons{0};
+//        Eigen::Vector<double, Eigen::Dynamic> cons;
+//        Eigen::Vector<double, Eigen::Dynamic> x;
+//        double eta0{0.1258925};
+//        double c0{10};
+//        double epsilon0{1/c0};
+//        double tau{10};
+//        double alpha{0.1};
+//        double beta{0.9};
+//        double epsilonk = 1/c;
+//        double etak = eta0 / pow(c,alpha);
+//        double eta{1e-6};
+//
+//
+//        // ganti stopping criteria buat ALM (liat buku N&W dan paper Andy)
+//        while(state.gradient.template lpNorm<Eigen::Infinity>() > eta) {
+//            solver.setStoppingCriteria(epsilonk);
+//            auto[solution, solver_state] = solver.Minimize(fx, x0, H, f, Aeq, beq,  lb, ub, lambda, c); // think how to supply stopping criteria here!
+//            state = fx.Eval(solution.x, solution.H, solution.f, solution.Aeq, solution.beq, solution.lb, solution.ub, solution.lambda, solution.c);
+//
+//            // compute constraint value
+//            //cons = solution.x[0]*solution.x[0] + solution.x[1]*solution.x[1] - 1;
+//            cons = solution.Aeq * solution.x - solution.beq;
+//            if (cons.norm() <= etak){
+//                lambda   = lambda + c*cons;
+//                epsilonk = epsilonk/c;
+//                etak     = etak / pow(c,beta);
+//            } else {
+//                c        = tau*c;
+//                epsilonk = epsilon0/c;
+//                etak     = eta0/pow(c,alpha);
+//
+//            }
+//            x = solution.x;
+//        }
+//        plhs[0] = EigenToMxArray(x);
 
     }
     catch (std::exception& ex){

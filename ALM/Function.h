@@ -18,12 +18,14 @@ struct State {
   vector_t gradient;   // The gradient in x.
   matrix_t hessian;    // The Hessian in x;
 
+  matrix_t H;
+  vector_t f;
   vector_t lb;         // lower bound constraint
   vector_t ub;         // upper bound
   matrix_t Aeq;        // equality constraint Aeq * x = beq
   vector_t beq;
 
-  scalar_t lambda;
+  vector_t lambda;
   scalar_t c;
 
   // TODO(patwie): There is probably a better way.
@@ -36,6 +38,7 @@ struct State {
         gradient(vector_t::Zero(dim)),
         hessian(matrix_t::Zero(dim, dim)) {}
 
+  // (x,H, f, Aeq, beq, lambda,c);
   State operator=(const State<scalar_t, vector_t, matrix_t> &rhs) {
     assert(rhs.order > -1);
     dim = rhs.dim;
@@ -70,16 +73,20 @@ public:
   virtual ~Function() = default;
 
   // Computes the value of a function.
-  virtual scalar_t operator()(const vector_t &x, const scalar_t lambda, const scalar_t c) const = 0;
+  //virtual scalar_t operator()(const vector_t &x, const scalar_t lambda, const scalar_t c) const = 0;
+  virtual scalar_t operator()(const vector_t &x,  const matrix_t &H, const vector_t &f, const matrix_t &Aeq, const vector_t &beq, const vector_t &lambda, const scalar_t c) const = 0;
 
   // Computes the gradient of a function.
-  virtual void Gradient(const vector_t &x, const scalar_t lambda, const scalar_t c, vector_t *grad) const {
+  //virtual void Gradient(const vector_t &x, const scalar_t lambda, const scalar_t c, vector_t *grad) const {
     //utils::ComputeFiniteGradient(*this, x, grad);
-  }
+  //}
+  virtual void Gradient(const vector_t &x,  const matrix_t &H, const vector_t &f, const matrix_t &Aeq, const vector_t &beq, const vector_t &lambda, const scalar_t c, vector_t *grad) const {};
+
   // Computes the Hessian of a function.
-  virtual void Hessian(const vector_t &x, const scalar_t lambda, const scalar_t c, hessian_t *hessian) const {
+  //virtual void Hessian(const vector_t &x, const scalar_t lambda, const scalar_t c, hessian_t *hessian) const {
     //utils::ComputeFiniteHessian(*this, x, hessian);
-  }
+  //}
+  virtual void Hessian(const vector_t &x,  const matrix_t &H, const vector_t &f, const matrix_t &Aeq, const vector_t &beq, const vector_t &lambda, const scalar_t c, hessian_t *hessian) const {}
 
 //  virtual scalar_t ComputeAugmentedObjective(const vector_t &x, const vector_t &lambda, const TScalar c) const = 0;
 //  virtual void ModifiedGradient() const = 0;
@@ -123,20 +130,43 @@ public:
 //      return state;
 //  }
 
-    virtual State<scalar_t, vector_t, hessian_t> Eval(const vector_t &x, const scalar_t lambda, const scalar_t c, const vector_t &lb , const vector_t &ub,
-                                                      const int order = 2) const {
+//    virtual State<scalar_t, vector_t, hessian_t> Eval(const vector_t &x, const scalar_t lambda, const scalar_t c, const vector_t &lb , const vector_t &ub,
+//                                                      const int order = 2) const {
+//        State<scalar_t, vector_t, hessian_t> state(x.rows(), order);
+//        state.value = this->operator()(x,lambda,c);
+//        state.x      = x;
+//        state.lambda = lambda;
+//        state.c      = c;
+//        state.lb     = lb;
+//        state.ub     = ub;
+//        if (order >= 1) {
+//            this->Gradient(x, lambda, c, &state.gradient);
+//        }
+//        if (order >= 2) {
+//            this->Hessian(x, lambda, c, &state.hessian);
+//        }
+//        return state;
+//    }
+
+    //almbound(H,f,Aeb,beq,lb,ub,x0,lambda,options)
+    virtual State <scalar_t, vector_t, hessian_t>
+    Eval(const vector_t &x, const matrix_t &H, const vector_t &f, const matrix_t &Aeq, const vector_t &beq, const vector_t &lb, const vector_t &ub, const vector_t &lambda, const scalar_t c ,const int order = 2) const {
         State<scalar_t, vector_t, hessian_t> state(x.rows(), order);
-        state.value = this->operator()(x,lambda,c);
+        state.value = this->operator()(x,H, f, Aeq, beq, lambda,c);
         state.x      = x;
         state.lambda = lambda;
+        state.H      = H;
+        state.f      = f;
+        state.Aeq    = Aeq;
+        state.beq    = beq;
         state.c      = c;
         state.lb     = lb;
         state.ub     = ub;
         if (order >= 1) {
-            this->Gradient(x, lambda, c, &state.gradient);
+            this->Gradient(x, H, f, Aeq, beq, lambda, c, &state.gradient);
         }
         if (order >= 2) {
-            this->Hessian(x, lambda, c, &state.hessian);
+            this->Hessian(x, H, f, Aeq, beq, lambda, c, &state.hessian);
         }
         return state;
     }

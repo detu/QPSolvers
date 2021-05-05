@@ -10,6 +10,7 @@ class Armijo {
  public:
   using scalar_t = typename function_t::scalar_t;
   using vector_t = typename function_t::vector_t;
+  using matrix_t = typename function_t::matrix_t;
   /**
    * @brief use Armijo Rule for (weak) Wolfe conditiions
    * @details [long description]
@@ -19,21 +20,23 @@ class Armijo {
    *
    * @return step-width
    */
-  static scalar_t Search(const vector_t &x, const scalar_t lambda, const scalar_t p, const vector_t &search_direction,
+
+  static scalar_t Search(const vector_t &x, const matrix_t &H, const vector_t &f, const matrix_t &Aeq, const vector_t &beq,
+                         const vector_t &lambda, const scalar_t p, const vector_t &search_direction,
                          const function_t &function,
                          const scalar_t alpha_init = 1.0) {
     const scalar_t c = 0.2;
     const scalar_t rho = 0.9;
     scalar_t alpha = alpha_init;
-    scalar_t f = function(x + alpha * search_direction, lambda, p);
-    const scalar_t f_in = function(x, lambda, p);
+    scalar_t fx = function(x + alpha * search_direction, H, f, Aeq, beq, lambda, p);
+    const scalar_t f_in = function(x, H, f, Aeq, beq, lambda, p);
     vector_t grad(x.rows());
     function.Gradient(x, lambda, p, &grad);
     const scalar_t Cache = c * grad.dot(search_direction);
 
-    while (f > f_in + alpha * Cache) {
+    while (fx > f_in + alpha * Cache) {
       alpha *= rho;
-      f = function(x + alpha * search_direction, lambda, p);
+      fx = function(x + alpha * search_direction, H, f, Aeq, beq, lambda, p);
     }
 
     return alpha;
@@ -46,6 +49,7 @@ class Armijo<function_t, 2> {
   using scalar_t = typename function_t::scalar_t;
   using vector_t = typename function_t::vector_t;
   using hessian_t = typename function_t::hessian_t;
+  using matrix_t = typename function_t::matrix_t;
   /**
    * @brief use Armijo Rule for (weak) Wolfe conditiions
    * @details [long description]
@@ -55,25 +59,27 @@ class Armijo<function_t, 2> {
    *
    * @return step-width
    */
-  static scalar_t Search(const vector_t &x, const scalar_t lambda, const scalar_t penalty, const vector_t &search_direction,
+    // auto state = fx.Eval(x0, H, f, Aeq, beq, lb, ub, lambda, c);
+  static scalar_t Search(const vector_t &x, const matrix_t &H, const vector_t &f, const matrix_t &Aeq, const vector_t &beq,
+                         const vector_t &lambda, const scalar_t penalty, const vector_t &search_direction,
                          const function_t &function) {
     const scalar_t c = 0.2;
     const scalar_t rho = 0.9;
     scalar_t alpha = 1.0;
 
-    scalar_t f = function(x + alpha * search_direction, lambda, penalty);
-    const scalar_t f_in = function(x, lambda, penalty);
+    scalar_t fx = function(x + alpha * search_direction, H, f, Aeq, beq, lambda, penalty);
+    const scalar_t f_in = function(x, H, f, Aeq, beq, lambda, penalty);
     hessian_t hessian(x.rows(), x.rows());
-    function.Hessian(x, lambda, penalty, &hessian);
+    function.Hessian(x, H, f, Aeq, beq, lambda, penalty, &hessian);
     vector_t grad(x.rows());
-    function.Gradient(x, lambda, penalty, &grad);
+    function.Gradient(x, H, f, Aeq, beq, lambda, penalty, &grad);
     const scalar_t Cache = c * grad.dot(search_direction) +
                            0.5 * c * c * search_direction.transpose() *
                                (hessian * search_direction);
 
-    while (f > f_in + alpha * Cache) {
+    while (fx > f_in + alpha * Cache) {
       alpha *= rho;
-      f = function(x + alpha * search_direction, lambda, penalty);
+      fx = function(x + alpha * search_direction, H, f, Aeq, beq, lambda, penalty);
     }
     return alpha;
   }

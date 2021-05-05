@@ -196,9 +196,13 @@ class Solver {
 //      return this->Minimize(function, function.Eval(Aeq, beq, lb, ub, x0, this->Order()));
 //  }
 
-    virtual std::tuple<function_state_t, state_t> Minimize(const function_t &function, const vector_t &x0, const scalar_t lambda, const scalar_t c, const vector_t &lb, const vector_t &ub){
-        return this->Minimize(function, function.Eval(x0, lambda, c, lb, ub, this->Order()));
-    }
+//    virtual std::tuple<function_state_t, state_t> Minimize(const function_t &function, const vector_t &x0, const scalar_t lambda, const scalar_t c, const vector_t &lb, const vector_t &ub){
+//        return this->Minimize(function, function.Eval(x0, lambda, c, lb, ub, this->Order()));
+//    }
+
+    virtual std::tuple<function_state_t, state_t> Minimize(const function_t &function, const vector_t &x0, const matrix_t &H, const vector_t &f, const matrix_t &Aeq, const vector_t &beq, const vector_t &lb, const vector_t &ub, const vector_t &lambda, const scalar_t c){
+            return this->Minimize(function, function.Eval(x0, H, f, Aeq, beq, lb, ub, lambda, c,this->Order()));
+     }
 
   virtual std::tuple<function_state_t, state_t> Minimize(const function_t &function, const function_state_t &initial_state) {
     // Solver state during the optimization.

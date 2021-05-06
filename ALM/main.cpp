@@ -15,16 +15,16 @@ public:
         scalar_t c1 = 0.5 * x.transpose() * H * x;
         scalar_t c2 = f.transpose() * x;
         scalar_t c3 = lambda.transpose() * ( Aeq* x - beq);
-        scalar_t c4 = c/2 * (Aeq * x - beq).squaredNorm() * (Aeq * x - beq).squaredNorm();
+        scalar_t c4 = c/2 * (Aeq * x - beq).transpose() * (Aeq * x - beq);
         return ( c1 + c2 + c3 + c4 );
     }
 
     void Gradient(const vector_t &x,  const matrix_t &H, const vector_t &f, const matrix_t &Aeq, const vector_t &beq, const vector_t &lambda, const scalar_t c, vector_t *grad) const override {
-        *grad = H * x + f + Aeq * lambda + c * (Aeq*x - beq);
+        *grad = H * x + f + Aeq * lambda + c * Aeq * (Aeq*x - beq) ;
     }
 
     void Hessian(const vector_t &x,  const matrix_t &H, const vector_t &f, const matrix_t &Aeq, const vector_t &beq, const vector_t &lambda, const scalar_t c, hessian_t *hessian) const override {
-        *hessian = H;
+        *hessian = H + c*Aeq*Aeq;
     }
 };
 
@@ -38,20 +38,33 @@ int main(){
     Eigen::Vector3d lambda;
 
     x0 << 0,
-            0,
-            0;
+          0,
+          0;
     H << 5, -2, -1,
-            -2, 4, 3,
-            -1, 3, 5;
+         -2, 4, 3,
+         -1, 3, 5;
     f << 2,
-            -35,
-            -47;
+         -35,
+         -47;
 
-    Aeq.setZero();
-    beq.setZero();
-    lb.setZero();
-    ub.setZero();
+//    Aeq.setZero();
+//    beq.setZero();
+//    lb.setZero();
+//    ub.setZero();
     lambda.setZero();
+    Aeq << 1, 0, 0,
+           0, 0, 0,
+           0, 0, 0;
+    beq << 1,
+           0,
+           0;
+    lb << -100,
+          -100,
+          -100;
+    ub << 100,
+          100,
+          100;
+
 
     Function fx;
     Function::scalar_t c(10);

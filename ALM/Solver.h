@@ -185,24 +185,9 @@ class Solver {
 
   virtual void InitializeSolver(const function_state_t & /*initial_state*/) {}
 
-  // Minimizes a given function and returns the function state
-//  virtual std::tuple<function_state_t, state_t> Minimize(
-//      const function_t &function, const vector_t &x0) {
-//    return this->Minimize(function, function.Eval(x0, this->Order()));
-//  }
-
-  // Minimizes with bound and equality constraints
-//  virtual std::tuple<function_state_t, state_t> Minimize(const function_t &function, const matrix_t &Aeq, const vector_t &beq, const vector_t &ub, const vector_t &lb, const vector_t &x0){
-//      return this->Minimize(function, function.Eval(Aeq, beq, lb, ub, x0, this->Order()));
-//  }
-
-//    virtual std::tuple<function_state_t, state_t> Minimize(const function_t &function, const vector_t &x0, const scalar_t lambda, const scalar_t c, const vector_t &lb, const vector_t &ub){
-//        return this->Minimize(function, function.Eval(x0, lambda, c, lb, ub, this->Order()));
-//    }
-
-    virtual std::tuple<function_state_t, state_t> Minimize(const function_t &function, const vector_t &x0, const matrix_t &H, const vector_t &f, const matrix_t &Aeq, const vector_t &beq, const vector_t &lb, const vector_t &ub, const vector_t &lambda, const scalar_t c){
+  virtual std::tuple<function_state_t, state_t> Minimize(const function_t &function, const vector_t &x0, const matrix_t &H, const vector_t &f, const matrix_t &Aeq, const vector_t &beq, const vector_t &lb, const vector_t &ub, const vector_t &lambda, const scalar_t c){
             return this->Minimize(function, function.Eval(x0, H, f, Aeq, beq, lb, ub, lambda, c,this->Order()));
-     }
+  }
 
   virtual std::tuple<function_state_t, state_t> Minimize(const function_t &function, const function_state_t &initial_state) {
     // Solver state during the optimization.
@@ -218,12 +203,10 @@ class Solver {
 
       // Find next function state.
       function_state_t previous_function_state(function_state);
-      function_state = this->OptimizationStep(function, previous_function_state,
-                                              solver_state);
+      function_state = this->OptimizationStep(function, previous_function_state, solver_state);
 
       // Update current solver state.
-      solver_state.Update(previous_function_state, function_state,
-                          stopping_state_);
+      solver_state.Update(previous_function_state, function_state, stopping_state_);
     } while (solver_state.status == Status::Continue);
 
     // Final Trigger of a user-defined callback.
@@ -232,9 +215,7 @@ class Solver {
     return {function_state, solver_state};
   }
 
-  virtual function_state_t OptimizationStep(const function_t &function,
-                                            const function_state_t &current,
-                                            const state_t &state) = 0;
+  virtual function_state_t OptimizationStep(const function_t &function, const function_state_t &current, const state_t &state) = 0;
 
   void setStoppingCriteria(const scalar_t gradTol){
       stopping_state_.gradient_norm = gradTol;

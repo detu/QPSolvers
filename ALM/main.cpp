@@ -53,17 +53,17 @@ int main(){
 //    ub.setZero();
     lambda.setZero();
     Aeq << 1, 0, 0,
-           0, 0, 0,
+           0, 1, 0,
            0, 0, 0;
-    beq << 1,
-           0,
+    beq << 2,
+           3,
            0;
-    lb << -100,
-          -100,
-          -100;
-    ub << 100,
-          100,
-          100;
+    lb << 0,
+          0,
+          0;
+    ub << 5,
+          5,
+          5;
 
 
     Function fx;
@@ -86,8 +86,11 @@ int main(){
     double etak = eta0 / pow(c,alpha);
     double eta{1e-6};
 
+    // need to check if x0 is feasible (look at CT Kelley code)
+
     // ganti stopping criteria buat ALM (liat buku N&W dan paper Andy)
-    while(state.gradient.template lpNorm<Eigen::Infinity>() > eta) {
+    double normX = 100;
+    while(state.gradient.template lpNorm<Eigen::Infinity>() > eta && normX > eta) {
         solver.setStoppingCriteria(epsilonk);
         auto[solution, solver_state] = solver.Minimize(fx, x0, H, f, Aeq, beq,  lb, ub, lambda, c); // think how to supply stopping criteria here!
         state = fx.Eval(solution.x, solution.H, solution.f, solution.Aeq, solution.beq, solution.lb, solution.ub, solution.lambda, solution.c);
@@ -104,7 +107,8 @@ int main(){
             etak     = eta0/pow(c,alpha);
 
         }
-        x = solution.x;
+        normX = (solution.x - x0).norm();
+        x0    = solution.x;
     }
 
     return 0;

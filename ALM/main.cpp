@@ -84,7 +84,7 @@ int main(){
     double beta{0.9};
     double epsilonk = 1/c;
     double etak = eta0 / pow(c,alpha);
-    double eta{1e-6};
+    double eta{1e-4};
 
     // need to check if x0 is feasible (look at CT Kelley code)
 
@@ -107,10 +107,12 @@ int main(){
             etak     = eta0/pow(c,alpha);
 
         }
-        normX = (solution.x - x0).norm();
+        //normX = (solution.x - x0).norm();
+        normX = (solution.x - x0).lpNorm<Eigen::Infinity>();
         x0    = solution.x;
     }
 
+    std::cout << "argmin " << x0.transpose() << std::endl;
     return 0;
 }
 

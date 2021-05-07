@@ -172,7 +172,7 @@ class Solver {
 
  public:
   explicit Solver(const State<scalar_t> &stopping_state = DefaultStoppingSolverState<scalar_t>())
-      : stopping_state_(stopping_state), step_callback_(GetDefaultStepCallback<scalar_t, vector_t, hessian_t>()) {}
+      : stopping_state_(stopping_state), step_callback_(GetEmptyStepCallback<scalar_t, vector_t, hessian_t>()) {}
 
   virtual ~Solver() = default;
 

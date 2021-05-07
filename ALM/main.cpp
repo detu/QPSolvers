@@ -85,19 +85,36 @@ int main(){
     double epsilonk = 1/c;
     double etak = eta0 / pow(c,alpha);
     double eta{1e-4};
+    int verbose = 1;
+
+    if (verbose){
+        // print header of outer iteration
+        std::cout << "--------------------------------------------------------" << std::endl;
+        std::cout << " k "  << "\t";
+        std::cout << "  f(x_k)   " << "\t";
+        std::cout << "  ||gradf(x_k)||  "  << "\t";
+        std::cout << "  ||constraint(x_k)||  "  << "\t";
+        std::cout << "  stepsize    " << std::endl;
+        std::cout << "--------------------------------------------------------" << std::endl;
+    }
+
 
     // need to check if x0 is feasible (look at CT Kelley code)
 
     // ganti stopping criteria buat ALM (liat buku N&W dan paper Andy)
     double normX = 100;
-    while(state.gradient.template lpNorm<Eigen::Infinity>() > eta && normX > eta) {
+    double grad  = 100;
+    double jac   = 100;
+    int k = 0;
+    while(grad > eta && normX > eta) {
         solver.setStoppingCriteria(epsilonk);
         auto[solution, solver_state] = solver.Minimize(fx, x0, H, f, Aeq, beq,  lb, ub, lambda, c); // think how to supply stopping criteria here!
         state = fx.Eval(solution.x, solution.H, solution.f, solution.Aeq, solution.beq, solution.lb, solution.ub, solution.lambda, solution.c);
 
         // compute constraint value
         cons = solution.Aeq * solution.x - solution.beq;
-        if (cons.norm() <= etak){
+        jac  = cons.norm();
+        if (jac <= etak){
             lambda   = lambda + c*cons;
             epsilonk = epsilonk/c;
             etak     = etak / pow(c,beta);
@@ -109,7 +126,16 @@ int main(){
         }
         //normX = (solution.x - x0).norm();
         normX = (solution.x - x0).lpNorm<Eigen::Infinity>();
+        grad  = state.gradient.template lpNorm<Eigen::Infinity>();
         x0    = solution.x;
+        if (verbose){
+            std::cout <<  k      << "\t";
+            std::cout <<  state.value << "\t";
+            std::cout <<  grad << "\t";
+            std::cout <<  jac << "\t";
+            std::cout <<  normX << std::endl;
+        }
+        k++;
     }
 
     std::cout << "argmin " << x0.transpose() << std::endl;

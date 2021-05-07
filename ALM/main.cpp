@@ -1,6 +1,7 @@
 #include "Function.h"
 #include "NewtonALM.h"
 #include <iostream>
+#include <iomanip>
 
 using FunctionXd = cppoptlib::function::Function<double>;
 
@@ -89,22 +90,22 @@ int main(){
 
     if (verbose){
         // print header of outer iteration
-        std::cout << "--------------------------------------------------------" << std::endl;
+        std::cout << "------------------------------------------------------------------------------" << std::endl;
         std::cout << " k "  << "\t";
         std::cout << "  f(x_k)   " << "\t";
         std::cout << "  ||gradf(x_k)||  "  << "\t";
         std::cout << "  ||constraint(x_k)||  "  << "\t";
-        std::cout << "  stepsize    " << std::endl;
-        std::cout << "--------------------------------------------------------" << std::endl;
+        std::cout << "        stepsize    " << std::endl;
+        std::cout << "------------------------------------------------------------------------------" << std::endl;
     }
 
 
     // need to check if x0 is feasible (look at CT Kelley code)
 
     // ganti stopping criteria buat ALM (liat buku N&W dan paper Andy)
-    double normX = 100;
-    double grad  = 100;
-    double jac   = 100;
+    double normX{100};
+    double grad{100};
+    double jac;
     int k = 0;
     while(grad > eta && normX > eta) {
         solver.setStoppingCriteria(epsilonk);
@@ -129,16 +130,16 @@ int main(){
         grad  = state.gradient.template lpNorm<Eigen::Infinity>();
         x0    = solution.x;
         if (verbose){
-            std::cout <<  k      << "\t";
-            std::cout <<  state.value << "\t";
-            std::cout <<  grad << "\t";
-            std::cout <<  jac << "\t";
-            std::cout <<  normX << std::endl;
+            std::cout <<  k      << "\t" ;
+            std::cout << std::fixed << std::setprecision(4) << state.value << "\t" << "\t";
+            std::cout << std::fixed << std::setprecision(4) << grad << "\t" << "\t"  << "\t" << "\t" << "\t" << "\t";
+            std::cout << std::fixed << std::setprecision(4) << jac << "\t" << "\t" << "\t" << "\t";
+            std::cout << std::fixed << std::setprecision(4) << normX << std::endl;
         }
         k++;
     }
 
-    std::cout << "argmin " << x0.transpose() << std::endl;
+    //std::cout << "argmin " << x0.transpose() << std::endl;
     return 0;
 }
 

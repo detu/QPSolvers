@@ -1,9 +1,11 @@
 #include "Function.h"
-#include "NewtonALM.h"
+//#include "NewtonALM.h"
 #include "MATio"
 #include <iostream>
 #include <iomanip>
 #include <Eigen/Sparse>
+#include <type_traits>
+#include <limits>
 
 using FunctionXd = cppoptlib::function::Function<double>;
 
@@ -15,10 +17,14 @@ public:
     using FunctionXd::vector_t;
 
     scalar_t operator()(const vector_t &x, const matrix_t &H, const vector_t &f, const matrix_t &Aeq, const vector_t &beq, const vector_t &lambda, const scalar_t c) const override {
-        scalar_t c1 = 0.5 * x.transpose() * H * x;
-        scalar_t c2 = f.transpose() * x;
-        scalar_t c3 = lambda.transpose() * ( Aeq* x - beq);
-        scalar_t c4 = c/2 * (Aeq * x - beq).transpose() * (Aeq * x - beq);
+        Eigen::SparseMatrix<double> xt = x.transpose();
+        Eigen::SparseMatrix<double> ft = f.transpose();
+        Eigen::SparseMatrix<double> lambdaT = lambda.transpose();
+        Eigen::SparseMatrix<double> consT = (Aeq * x - beq).transpose();
+        scalar_t c1 = (0.5 * xt * H * x).sum();
+        scalar_t c2 = (ft * x).sum();
+        scalar_t c3 = (lambdaT * ( Aeq* x - beq)).sum();
+        scalar_t c4 = (c/2 * consT * (Aeq * x - beq)).sum();
         return ( c1 + c2 + c3 + c4 );
     }
 
@@ -75,6 +81,17 @@ int main(){
     x0.setZero(numX);
     lambda.setZero(numC);
 
+    // convert to sparse
+    Eigen::SparseMatrix<double> Hs   = H.sparseView();
+    Eigen::SparseVector<double> fs   = f.sparseView();
+    Eigen::SparseMatrix<double> Aeqs = Aeq.sparseView();
+    Eigen::SparseVector<double> beqs = beq.sparseView();
+    Eigen::SparseVector<double> lbs  = lb.sparseView();
+    Eigen::SparseVector<double> ubs  = ub.sparseView();
+    Eigen::SparseVector<double> x0s  = x0.sparseView();
+    Eigen::SparseVector<double> lambdas  = lambda.sparseView();
+
+
 
 //    Eigen::Vector3d x0;
 //    Eigen::Matrix3d H;
@@ -115,43 +132,44 @@ int main(){
 //
     Function fx;
     Function::scalar_t c(10);
-    auto state = fx.Eval(x0, H, f, Aeq, beq, lb, ub, lambda, c);
+    //auto state = fx.Eval(x0, H, f, Aeq, beq, lb, ub, lambda, c);
+    auto state = fx.Eval(x0s, Hs, fs, Aeqs, beqs, lbs, ubs, lambdas, c);
 
-    cppoptlib::solver::NewtonBound<Function> solver;
-
-    //double cons{0};
-    Eigen::Vector<double, Eigen::Dynamic> cons;
-    Eigen::Vector<double, Eigen::Dynamic> x;
-    double eta0{0.1258925};
-    double c0{10};
-    double epsilon0{1/c0};
-    double tau{10};
-    double alpha{0.1};
-    double beta{0.9};
-    double epsilonk = 1/c;
-    double etak = eta0 / pow(c,alpha);
-    double eta{1e-4};
-    int verbose = 1;
-
-    if (verbose){
-        // print header of outer iteration
-        std::cout << "------------------------------------------------------------------------------" << std::endl;
-        std::cout << " k "  << "\t";
-        std::cout << "  f(x_k)   " << "\t";
-        std::cout << "  ||gradf(x_k)||  "  << "\t";
-        std::cout << "  ||constraint(x_k)||  "  << "\t";
-        std::cout << "        stepsize    " << std::endl;
-        std::cout << "------------------------------------------------------------------------------" << std::endl;
-    }
-
-
-    // need to check if x0 is feasible (look at CT Kelley code)
-
-    // ganti stopping criteria buat ALM (liat buku N&W dan paper Andy)
-    double normX{100};
-    double grad{100};
-    double jac;
-    int k = 0;
+//    cppoptlib::solver::NewtonBound<Function> solver;
+//
+//    //double cons{0};
+//    Eigen::Vector<double, Eigen::Dynamic> cons;
+//    Eigen::Vector<double, Eigen::Dynamic> x;
+//    double eta0{0.1258925};
+//    double c0{10};
+//    double epsilon0{1/c0};
+//    double tau{10};
+//    double alpha{0.1};
+//    double beta{0.9};
+//    double epsilonk = 1/c;
+//    double etak = eta0 / pow(c,alpha);
+//    double eta{1e-4};
+//    int verbose = 1;
+//
+//    if (verbose){
+//        // print header of outer iteration
+//        std::cout << "------------------------------------------------------------------------------" << std::endl;
+//        std::cout << " k "  << "\t";
+//        std::cout << "  f(x_k)   " << "\t";
+//        std::cout << "  ||gradf(x_k)||  "  << "\t";
+//        std::cout << "  ||constraint(x_k)||  "  << "\t";
+//        std::cout << "        stepsize    " << std::endl;
+//        std::cout << "------------------------------------------------------------------------------" << std::endl;
+//    }
+//
+//
+//    // need to check if x0 is feasible (look at CT Kelley code)
+//
+//    // ganti stopping criteria buat ALM (liat buku N&W dan paper Andy)
+//    double normX{100};
+//    double grad{100};
+//    double jac;
+//    int k = 0;
 //    while(grad > eta && normX > eta) {
 //        solver.setStoppingCriteria(epsilonk);
 //        auto[solution, solver_state] = solver.Minimize(fx, x0, H, f, Aeq, beq,  lb, ub, lambda, c); // think how to supply stopping criteria here!

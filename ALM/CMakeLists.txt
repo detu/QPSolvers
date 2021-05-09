@@ -23,7 +23,7 @@ message("${EIGEN3_INCLUDE_DIR}")
 #ENDFOREACH(t ${EIG_MEXES})
 
 #add_executable(devQP function.h main.cpp)
-include_directories(${PROJECT_SOURCE_DIR})
+#include_directories(${PROJECT_SOURCE_DIR})
 #add_executable(mextest mextest.cpp)
 #add_executable(simple simple.cc)
 add_executable(main main.cpp)

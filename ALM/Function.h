@@ -3,6 +3,7 @@
 #define INCLUDE_CPPOPTLIB_FUNCTION_H_
 
 #include "Eigen/Core"
+#include "Eigen/SparseCore"
 #include "derivatives.h"
 
 namespace cppoptlib::function {
@@ -34,9 +35,9 @@ struct State {
   State(const int dim, const int order)
       : dim(dim),
         order(order),
-        x(vector_t::Zero(dim)),
-        gradient(vector_t::Zero(dim)),
-        hessian(matrix_t::Zero(dim, dim)) {}
+        x(dim),
+        gradient(dim),
+        hessian(dim, dim) {}
 
   // (x,H, f, Aeq, beq, lambda,c);
   State operator=(const State<scalar_t, vector_t, matrix_t> &rhs) {
@@ -60,9 +61,12 @@ class Function {
 
 public:
   using scalar_t = TScalar;
-  using vector_t = Eigen::Matrix<TScalar, TDim, 1>;
-  using hessian_t = Eigen::Matrix<TScalar, TDim, TDim>;
-  using matrix_t = Eigen::Matrix<TScalar, Eigen::Dynamic, Eigen::Dynamic>;
+  //using vector_t = Eigen::Matrix<TScalar, TDim, 1>;
+    using vector_t = Eigen::SparseVector<TScalar, Eigen::ColMajor, int>;
+  //using hessian_t = Eigen::Matrix<TScalar, TDim, TDim>;
+    using hessian_t = Eigen::SparseMatrix<TScalar, Eigen::ColMajor, int>;
+  //using matrix_t = Eigen::Matrix<TScalar, Eigen::Dynamic, Eigen::Dynamic>;
+    using matrix_t = Eigen::SparseMatrix<TScalar, Eigen::ColMajor, int>;
   using index_t = typename vector_t::Index;
 
   using state_t = function::State<scalar_t, vector_t, hessian_t>;

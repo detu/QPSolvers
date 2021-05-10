@@ -69,8 +69,10 @@ class NewtonBound : public Solver<function_t> {
         //vector_t px = Eigen::MatrixXd::Zero(ndim, 1);
         Eigen::SparseVector<double> px(ndim);
         px.setZero();
-        px = x.array().min(upper.array());
-        px = x.array().max(lower.array());
+        //px = x.array().min(upper.array());
+        px = x.cwiseMin(upper);
+        //px = x.array().max(lower.array());
+        px = x.cwiseMax(lower);
         return px;
     }
 

@@ -71,8 +71,10 @@ struct State {
 
     num_iterations++;
     f_delta = fabs(current_function_state.value - previous_function_state.value);
-    x_delta = (current_function_state.x - previous_function_state.x).template lpNorm<Eigen::Infinity>();
-    gradient_norm = current_function_state.gradient.template lpNorm<Eigen::Infinity>();
+    //x_delta = (current_function_state.x - previous_function_state.x).template lpNorm<Eigen::Infinity>();
+    //gradient_norm = current_function_state.gradient.template lpNorm<Eigen::Infinity>();
+    x_delta = (current_function_state.x - previous_function_state.x).norm();
+    gradient_norm = current_function_state.gradient.norm();
 
     if ((stop_state.num_iterations > 0) && (num_iterations > stop_state.num_iterations)) {
       status = Status::IterationLimit;

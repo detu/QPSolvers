@@ -1,5 +1,5 @@
 #include "Function.h"
-//#include "NewtonALM.h"
+#include "NewtonALM.h"
 #include "MATio"
 #include <iostream>
 #include <iomanip>
@@ -135,7 +135,7 @@ int main(){
     //auto state = fx.Eval(x0, H, f, Aeq, beq, lb, ub, lambda, c);
     auto state = fx.Eval(x0s, Hs, fs, Aeqs, beqs, lbs, ubs, lambdas, c);
 
-//    cppoptlib::solver::NewtonBound<Function> solver;
+    cppoptlib::solver::NewtonBound<Function> solver;
 //
 //    //double cons{0};
 //    Eigen::Vector<double, Eigen::Dynamic> cons;

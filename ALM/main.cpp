@@ -39,42 +39,70 @@ public:
 
 int main(){
 
-    matio::MatioFile file("qpData.mat");
-    //matio::MatioFile file("qpSparse.mat");
-    Eigen::MatrixXd H;
-    Eigen::VectorXd f;
-    Eigen::MatrixXd Aeq;
-    Eigen::VectorXd beq;
-    Eigen::VectorXd lb;
-    Eigen::VectorXd ub;
-    Eigen::VectorXd x0;
-    Eigen::VectorXd lambda;
-//    Eigen::SparseMatrix<double> H;
-//    Eigen::SparseMatrix<double> f;
-//    Eigen::SparseMatrix<double> Aeq;
-//    Eigen::SparseMatrix<double> beq;
-//    Eigen::SparseMatrix<double> lb;
-//    Eigen::SparseMatrix<double> ub;
+//    matio::MatioFile file("qpData.mat");
+//    //matio::MatioFile file("qpSparse.mat");
+//    Eigen::MatrixXd H;
+//    Eigen::VectorXd f;
+//    Eigen::MatrixXd Aeq;
+//    Eigen::VectorXd beq;
+//    Eigen::VectorXd lb;
+//    Eigen::VectorXd ub;
+//    Eigen::VectorXd x0;
+//    Eigen::VectorXd lambda;
+//
+//
+//    if (file.read_mat("Hm", H)) {
+//        std::cout << "error: " << file.lasterr() << std::endl;
+//    }
+//    if (file.read_mat("f", f)) {
+//        std::cout << "error: " << file.lasterr() << std::endl;
+//    }
+//    if (file.read_mat("Aeq", Aeq)) {
+//        std::cout << "error: " << file.lasterr() << std::endl;
+//    }
+//    if (file.read_mat("beq", beq)) {
+//        std::cout << "error: " << file.lasterr() << std::endl;
+//    }
+//    if (file.read_mat("lb", lb)) {
+//        std::cout << "error: " << file.lasterr() << std::endl;
+//    }
+//    if (file.read_mat("ub", ub)) {
+//        std::cout << "error: " << file.lasterr() << std::endl;
+//    }
 
 
-    if (file.read_mat("Hm", H)) {
-        std::cout << "error: " << file.lasterr() << std::endl;
-    }
-    if (file.read_mat("f", f)) {
-        std::cout << "error: " << file.lasterr() << std::endl;
-    }
-    if (file.read_mat("Aeq", Aeq)) {
-        std::cout << "error: " << file.lasterr() << std::endl;
-    }
-    if (file.read_mat("beq", beq)) {
-        std::cout << "error: " << file.lasterr() << std::endl;
-    }
-    if (file.read_mat("lb", lb)) {
-        std::cout << "error: " << file.lasterr() << std::endl;
-    }
-    if (file.read_mat("ub", ub)) {
-        std::cout << "error: " << file.lasterr() << std::endl;
-    }
+    Eigen::Vector3d x0;
+    Eigen::Matrix3d H;
+    Eigen::Vector3d f;
+    Eigen::Matrix3d Aeq;
+    Eigen::Vector3d beq;
+    Eigen::Vector3d lb,ub;
+    Eigen::Vector3d lambda;
+
+    x0 << 0,
+          0,
+          0;
+    H << 5, -2, -1,
+         -2, 4, 3,
+         -1, 3, 5;
+    f << 2,
+         -35,
+         -47;
+
+    lambda.setZero();
+    Aeq << 0, 0, 0,
+           0, 0, 0,
+           0, 0, 0;
+    beq << 2,
+           3,
+           0;
+    lb << 0,
+          0,
+          0;
+    ub << 5,
+          5,
+          5;
+
 
     int numX = Aeq.cols();
     int numC = Aeq.rows();
@@ -90,46 +118,6 @@ int main(){
     Eigen::SparseVector<double> ubs  = ub.sparseView();
     Eigen::SparseVector<double> x0s  = x0.sparseView();
     Eigen::SparseVector<double> lambdas  = lambda.sparseView();
-
-
-
-//    Eigen::Vector3d x0;
-//    Eigen::Matrix3d H;
-//    Eigen::Vector3d f;
-//    Eigen::Matrix3d Aeq;
-//    Eigen::Vector3d beq;
-//    Eigen::Vector3d lb,ub;
-//    Eigen::Vector3d lambda;
-//
-//    x0 << 0,
-//          0,
-//          0;
-//    H << 5, -2, -1,
-//         -2, 4, 3,
-//         -1, 3, 5;
-//    f << 2,
-//         -35,
-//         -47;
-//
-////    Aeq.setZero();
-////    beq.setZero();
-////    lb.setZero();
-////    ub.setZero();
-//    lambda.setZero();
-//    Aeq << 1, 0, 0,
-//           0, 1, 0,
-//           0, 0, 0;
-//    beq << 2,
-//           3,
-//           0;
-//    lb << 0,
-//          0,
-//          0;
-//    ub << 5,
-//          5,
-//          5;
-//
-//
     Function fx;
     Function::scalar_t c(10);
     //auto state = fx.Eval(x0, H, f, Aeq, beq, lb, ub, lambda, c);
@@ -206,7 +194,7 @@ int main(){
         k++;
     }
 
-    //std::cout << "argmin " << x0.transpose() << std::endl;
+    std::cout << "argmin " << x0.transpose() << std::endl;
     return 0;
 }
 

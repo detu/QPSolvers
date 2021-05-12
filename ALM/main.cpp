@@ -1,7 +1,11 @@
 #include "Function.h"
 #include "NewtonALM.h"
+#include "MATio"
 #include <iostream>
 #include <iomanip>
+#include <Eigen/Sparse>
+#include <type_traits>
+#include <limits>
 
 using FunctionXd = cppoptlib::function::Function<double>;
 
@@ -13,23 +17,60 @@ public:
     using FunctionXd::vector_t;
 
     scalar_t operator()(const vector_t &x, const matrix_t &H, const vector_t &f, const matrix_t &Aeq, const vector_t &beq, const vector_t &lambda, const scalar_t c) const override {
-        scalar_t c1 = 0.5 * x.transpose() * H * x;
-        scalar_t c2 = f.transpose() * x;
-        scalar_t c3 = lambda.transpose() * ( Aeq* x - beq);
-        scalar_t c4 = c/2 * (Aeq * x - beq).transpose() * (Aeq * x - beq);
+        Eigen::SparseMatrix<double> xt = x.transpose();
+        Eigen::SparseMatrix<double> ft = f.transpose();
+        Eigen::SparseMatrix<double> lambdaT = lambda.transpose();
+        Eigen::SparseMatrix<double> consT = (Aeq * x - beq).transpose();
+        scalar_t c1 = (0.5 * xt * H * x).sum();
+        scalar_t c2 = (ft * x).sum();
+        scalar_t c3 = (lambdaT * ( Aeq* x - beq)).sum();
+        scalar_t c4 = (c/2 * consT * (Aeq * x - beq)).sum();
         return ( c1 + c2 + c3 + c4 );
     }
 
     void Gradient(const vector_t &x,  const matrix_t &H, const vector_t &f, const matrix_t &Aeq, const vector_t &beq, const vector_t &lambda, const scalar_t c, vector_t *grad) const override {
-        *grad = H * x + f + Aeq * lambda + c * Aeq * (Aeq*x - beq) ;
+        *grad = H * x + f + Aeq.transpose() * lambda + c * Aeq.transpose()* (Aeq*x - beq) ;
     }
 
     void Hessian(const vector_t &x,  const matrix_t &H, const vector_t &f, const matrix_t &Aeq, const vector_t &beq, const vector_t &lambda, const scalar_t c, hessian_t *hessian) const override {
-        *hessian = H + c*Aeq*Aeq;
+        *hessian = H + c*Aeq.transpose()*Aeq;
     }
 };
 
 int main(){
+
+//    matio::MatioFile file("qpData.mat");
+//    //matio::MatioFile file("qpSparse.mat");
+//    Eigen::MatrixXd H;
+//    Eigen::VectorXd f;
+//    Eigen::MatrixXd Aeq;
+//    Eigen::VectorXd beq;
+//    Eigen::VectorXd lb;
+//    Eigen::VectorXd ub;
+//    Eigen::VectorXd x0;
+//    Eigen::VectorXd lambda;
+//
+//
+//    if (file.read_mat("Hm", H)) {
+//        std::cout << "error: " << file.lasterr() << std::endl;
+//    }
+//    if (file.read_mat("f", f)) {
+//        std::cout << "error: " << file.lasterr() << std::endl;
+//    }
+//    if (file.read_mat("Aeq", Aeq)) {
+//        std::cout << "error: " << file.lasterr() << std::endl;
+//    }
+//    if (file.read_mat("beq", beq)) {
+//        std::cout << "error: " << file.lasterr() << std::endl;
+//    }
+//    if (file.read_mat("lb", lb)) {
+//        std::cout << "error: " << file.lasterr() << std::endl;
+//    }
+//    if (file.read_mat("ub", ub)) {
+//        std::cout << "error: " << file.lasterr() << std::endl;
+//    }
+
+
     Eigen::Vector3d x0;
     Eigen::Matrix3d H;
     Eigen::Vector3d f;
@@ -48,13 +89,9 @@ int main(){
          -35,
          -47;
 
-//    Aeq.setZero();
-//    beq.setZero();
-//    lb.setZero();
-//    ub.setZero();
     lambda.setZero();
-    Aeq << 1, 0, 0,
-           0, 1, 0,
+    Aeq << 0, 0, 0,
+           0, 0, 0,
            0, 0, 0;
     beq << 2,
            3,
@@ -67,16 +104,32 @@ int main(){
           5;
 
 
+    int numX = Aeq.cols();
+    int numC = Aeq.rows();
+    x0.setZero(numX);
+    lambda.setZero(numC);
+
+    // convert to sparse
+    Eigen::SparseMatrix<double> Hs   = H.sparseView();
+    Eigen::SparseVector<double> fs   = f.sparseView();
+    Eigen::SparseMatrix<double> Aeqs = Aeq.sparseView();
+    Eigen::SparseVector<double> beqs = beq.sparseView();
+    Eigen::SparseVector<double> lbs  = lb.sparseView();
+    Eigen::SparseVector<double> ubs  = ub.sparseView();
+    Eigen::SparseVector<double> x0s  = x0.sparseView();
+    Eigen::SparseVector<double> lambdas  = lambda.sparseView();
     Function fx;
     Function::scalar_t c(10);
-    auto state = fx.Eval(x0, H, f, Aeq, beq, lb, ub, lambda, c);
-    std::cout << "this" << std::endl;
+    //auto state = fx.Eval(x0, H, f, Aeq, beq, lb, ub, lambda, c);
+    auto state = fx.Eval(x0s, Hs, fs, Aeqs, beqs, lbs, ubs, lambdas, c);
 
     cppoptlib::solver::NewtonBound<Function> solver;
 
     //double cons{0};
-    Eigen::Vector<double, Eigen::Dynamic> cons;
-    Eigen::Vector<double, Eigen::Dynamic> x;
+    //Eigen::Vector<double, Eigen::Dynamic> cons;
+    Eigen::SparseVector<double> cons(numC);
+    //Eigen::Vector<double, Eigen::Dynamic> x;
+    Eigen::SparseVector<double> x(numX);
     double eta0{0.1258925};
     double c0{10};
     double epsilon0{1/c0};
@@ -109,7 +162,8 @@ int main(){
     int k = 0;
     while(grad > eta && normX > eta) {
         solver.setStoppingCriteria(epsilonk);
-        auto[solution, solver_state] = solver.Minimize(fx, x0, H, f, Aeq, beq,  lb, ub, lambda, c); // think how to supply stopping criteria here!
+        //auto[solution, solver_state] = solver.Minimize(fx, x0, H, f, Aeq, beq,  lb, ub, lambda, c); // think how to supply stopping criteria here!
+        auto[solution, solver_state] = solver.Minimize(fx, x0s, Hs, fs, Aeqs, beqs,  lbs, ubs, lambdas, c);
         state = fx.Eval(solution.x, solution.H, solution.f, solution.Aeq, solution.beq, solution.lb, solution.ub, solution.lambda, solution.c);
 
         // compute constraint value
@@ -125,9 +179,10 @@ int main(){
             etak     = eta0/pow(c,alpha);
 
         }
-        //normX = (solution.x - x0).norm();
-        normX = (solution.x - x0).lpNorm<Eigen::Infinity>();
-        grad  = state.gradient.template lpNorm<Eigen::Infinity>();
+        normX = (solution.x - x0).norm();
+        //normX = (solution.x - x0).lpNorm<Eigen::Infinity>();
+        //grad  = state.gradient.template lpNorm<Eigen::Infinity>();
+        grad  = state.gradient.norm();
         x0    = solution.x;
         if (verbose){
             std::cout <<  k      << "\t" ;
@@ -139,7 +194,7 @@ int main(){
         k++;
     }
 
-    //std::cout << "argmin " << x0.transpose() << std::endl;
+    std::cout << "argmin " << x0.transpose() << std::endl;
     return 0;
 }
 

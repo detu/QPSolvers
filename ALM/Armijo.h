@@ -73,9 +73,11 @@ class Armijo<function_t, 2> {
     function.Hessian(x, H, f, Aeq, beq, lambda, penalty, &hessian);
     vector_t grad(x.rows());
     function.Gradient(x, H, f, Aeq, beq, lambda, penalty, &grad);
+//    const scalar_t Cache = c * grad.dot(search_direction) +
+//                           0.5 * c * c * search_direction.transpose() *
+//                               (hessian * search_direction);
     const scalar_t Cache = c * grad.dot(search_direction) +
-                           0.5 * c * c * search_direction.transpose() *
-                               (hessian * search_direction);
+            (0.5 * c * c * search_direction.transpose() * (hessian * search_direction)).sum();
 
     while (fx > f_in + alpha * Cache) {
       alpha *= rho;

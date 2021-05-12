@@ -3,8 +3,10 @@
 #define INCLUDE_CPPOPTLIB_SOLVER_ALM_BOUND_H_
 
 #include "Armijo.h"
-#include "Eigen/Dense"
+#include "Eigen/Sparse"
 #include "Solver.h"  // NOLINT
+#include "speye.h"
+#include "MUMPSSupport"
 
 namespace cppoptlib::solver {
 
@@ -41,9 +43,22 @@ class NewtonBound : public Solver<function_t> {
     function_state_t next = current;
 
     constexpr scalar_t safe_guard = 1e-5;
-    const hessian_t hessian = next.hessian + safe_guard * hessian_t::Identity(dim_, dim_);
+    hessian_t identity;
+    speye(dim_, identity);
+    //const hessian_t hessian = next.hessian + safe_guard * hessian_t::Identity(dim_, dim_);
+    const hessian_t hessian = next.hessian + safe_guard * identity;
 
-    const vector_t delta_x = hessian.lu().solve(-next.gradient);
+    //Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
+    //solver.compute(hessian);
+
+    //const vector_t delta_x = hessian.lu().solve(-next.gradient);
+    //const vector_t delta_x = solver.solve(-next.gradient);
+
+    //Eigen::MUMPSLU<Eigen::SparseMatrix<double>> solver;
+    Eigen::MUMPSLDLT<Eigen::SparseMatrix<double>, Eigen::Upper> solver;
+    solver.analyzePattern(hessian);
+    solver.factorize(hessian);
+    const vector_t delta_x = solver.solve(-next.gradient);
     const scalar_t rate = linesearch::Armijo<function_t, 2>::Search(next.x, next.H, next.f, next.Aeq, next.beq, next.lambda, next.c, delta_x, function);
 
     // project (next.x + rate * delta_x to bound constraint using KKT_boundProjection method
@@ -58,9 +73,13 @@ class NewtonBound : public Solver<function_t> {
     vector_t boundProj(const vector_t &x, const vector_t &upper, const vector_t &lower){
         // see gradproj.m or GradProj.h
         auto ndim = x.size();
-        vector_t px = Eigen::MatrixXd::Zero(ndim, 1);
-        px = x.array().min(upper.array());
-        px = px.array().max(lower.array());
+        //vector_t px = Eigen::MatrixXd::Zero(ndim, 1);
+        Eigen::SparseVector<double> px(ndim);
+        px.setZero();
+        //px = x.array().min(upper.array());
+        px = x.cwiseMin(upper);
+        //px = x.array().max(lower.array());
+        px = x.cwiseMax(lower);
         return px;
     }
 

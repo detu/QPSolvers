@@ -5,11 +5,11 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_package(Eigen3 REQUIRED)
 find_package(MUMPS REQUIRED)
-find_package(MATLAB COMPONENTS MX_LIBRARY)
+#find_package(MATLAB COMPONENTS MX_LIBRARY)
 find_package(MATIO REQUIRED)
 
 include_directories(${EIGEN3_INCLUDE_DIR})
-include_directories(${MUMPS_INCLUDE_DIR})
+#include_directories(${MUMPS_INCLUDE_DIR})
 include_directories(${MATLAB_INCLUDE_DIRS})
 include_directories(${MATIO_INCLUDE_DIRS})
 

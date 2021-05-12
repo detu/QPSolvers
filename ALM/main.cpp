@@ -136,71 +136,75 @@ int main(){
     auto state = fx.Eval(x0s, Hs, fs, Aeqs, beqs, lbs, ubs, lambdas, c);
 
     cppoptlib::solver::NewtonBound<Function> solver;
-//
-//    //double cons{0};
-//    Eigen::Vector<double, Eigen::Dynamic> cons;
-//    Eigen::Vector<double, Eigen::Dynamic> x;
-//    double eta0{0.1258925};
-//    double c0{10};
-//    double epsilon0{1/c0};
-//    double tau{10};
-//    double alpha{0.1};
-//    double beta{0.9};
-//    double epsilonk = 1/c;
-//    double etak = eta0 / pow(c,alpha);
-//    double eta{1e-4};
-//    int verbose = 1;
-//
-//    if (verbose){
-//        // print header of outer iteration
-//        std::cout << "------------------------------------------------------------------------------" << std::endl;
-//        std::cout << " k "  << "\t";
-//        std::cout << "  f(x_k)   " << "\t";
-//        std::cout << "  ||gradf(x_k)||  "  << "\t";
-//        std::cout << "  ||constraint(x_k)||  "  << "\t";
-//        std::cout << "        stepsize    " << std::endl;
-//        std::cout << "------------------------------------------------------------------------------" << std::endl;
-//    }
-//
-//
-//    // need to check if x0 is feasible (look at CT Kelley code)
-//
-//    // ganti stopping criteria buat ALM (liat buku N&W dan paper Andy)
-//    double normX{100};
-//    double grad{100};
-//    double jac;
-//    int k = 0;
-//    while(grad > eta && normX > eta) {
-//        solver.setStoppingCriteria(epsilonk);
-//        auto[solution, solver_state] = solver.Minimize(fx, x0, H, f, Aeq, beq,  lb, ub, lambda, c); // think how to supply stopping criteria here!
-//        state = fx.Eval(solution.x, solution.H, solution.f, solution.Aeq, solution.beq, solution.lb, solution.ub, solution.lambda, solution.c);
-//
-//        // compute constraint value
-//        cons = solution.Aeq * solution.x - solution.beq;
-//        jac  = cons.norm();
-//        if (jac <= etak){
-//            lambda   = lambda + c*cons;
-//            epsilonk = epsilonk/c;
-//            etak     = etak / pow(c,beta);
-//        } else {
-//            c        = tau*c;
-//            epsilonk = epsilon0/c;
-//            etak     = eta0/pow(c,alpha);
-//
-//        }
-//        //normX = (solution.x - x0).norm();
-//        normX = (solution.x - x0).lpNorm<Eigen::Infinity>();
-//        grad  = state.gradient.template lpNorm<Eigen::Infinity>();
-//        x0    = solution.x;
-//        if (verbose){
-//            std::cout <<  k      << "\t" ;
-//            std::cout << std::fixed << std::setprecision(4) << state.value << "\t" << "\t";
-//            std::cout << std::fixed << std::setprecision(4) << grad << "\t" << "\t"  << "\t" << "\t" << "\t" << "\t";
-//            std::cout << std::fixed << std::setprecision(4) << jac << "\t" << "\t" << "\t" << "\t";
-//            std::cout << std::fixed << std::setprecision(4) << normX << std::endl;
-//        }
-//        k++;
-//    }
+
+    //double cons{0};
+    //Eigen::Vector<double, Eigen::Dynamic> cons;
+    Eigen::SparseVector<double> cons(numC);
+    //Eigen::Vector<double, Eigen::Dynamic> x;
+    Eigen::SparseVector<double> x(numX);
+    double eta0{0.1258925};
+    double c0{10};
+    double epsilon0{1/c0};
+    double tau{10};
+    double alpha{0.1};
+    double beta{0.9};
+    double epsilonk = 1/c;
+    double etak = eta0 / pow(c,alpha);
+    double eta{1e-4};
+    int verbose = 1;
+
+    if (verbose){
+        // print header of outer iteration
+        std::cout << "------------------------------------------------------------------------------" << std::endl;
+        std::cout << " k "  << "\t";
+        std::cout << "  f(x_k)   " << "\t";
+        std::cout << "  ||gradf(x_k)||  "  << "\t";
+        std::cout << "  ||constraint(x_k)||  "  << "\t";
+        std::cout << "        stepsize    " << std::endl;
+        std::cout << "------------------------------------------------------------------------------" << std::endl;
+    }
+
+
+    // need to check if x0 is feasible (look at CT Kelley code)
+
+    // ganti stopping criteria buat ALM (liat buku N&W dan paper Andy)
+    double normX{100};
+    double grad{100};
+    double jac;
+    int k = 0;
+    while(grad > eta && normX > eta) {
+        solver.setStoppingCriteria(epsilonk);
+        //auto[solution, solver_state] = solver.Minimize(fx, x0, H, f, Aeq, beq,  lb, ub, lambda, c); // think how to supply stopping criteria here!
+        auto[solution, solver_state] = solver.Minimize(fx, x0s, Hs, fs, Aeqs, beqs,  lbs, ubs, lambdas, c);
+        state = fx.Eval(solution.x, solution.H, solution.f, solution.Aeq, solution.beq, solution.lb, solution.ub, solution.lambda, solution.c);
+
+        // compute constraint value
+        cons = solution.Aeq * solution.x - solution.beq;
+        jac  = cons.norm();
+        if (jac <= etak){
+            lambda   = lambda + c*cons;
+            epsilonk = epsilonk/c;
+            etak     = etak / pow(c,beta);
+        } else {
+            c        = tau*c;
+            epsilonk = epsilon0/c;
+            etak     = eta0/pow(c,alpha);
+
+        }
+        normX = (solution.x - x0).norm();
+        //normX = (solution.x - x0).lpNorm<Eigen::Infinity>();
+        //grad  = state.gradient.template lpNorm<Eigen::Infinity>();
+        grad  = state.gradient.norm();
+        x0    = solution.x;
+        if (verbose){
+            std::cout <<  k      << "\t" ;
+            std::cout << std::fixed << std::setprecision(4) << state.value << "\t" << "\t";
+            std::cout << std::fixed << std::setprecision(4) << grad << "\t" << "\t"  << "\t" << "\t" << "\t" << "\t";
+            std::cout << std::fixed << std::setprecision(4) << jac << "\t" << "\t" << "\t" << "\t";
+            std::cout << std::fixed << std::setprecision(4) << normX << std::endl;
+        }
+        k++;
+    }
 
     //std::cout << "argmin " << x0.transpose() << std::endl;
     return 0;

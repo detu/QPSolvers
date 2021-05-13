@@ -138,7 +138,7 @@ int main(){
     double beta{0.9};
     double epsilonk = 1/c;
     double etak = eta0 / pow(c,alpha);
-    double eta{1e-4};
+    double eta{1e-2};
     int verbose = 1;
 
     if (verbose){

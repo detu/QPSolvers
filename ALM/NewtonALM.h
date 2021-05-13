@@ -7,6 +7,8 @@
 #include "Solver.h"  // NOLINT
 #include "speye.h"
 #include "MUMPSSupport"
+//#include "Eigen/PaStiXSupport"
+//#include "Eigen/SparseCholesky"
 
 namespace cppoptlib::solver {
 
@@ -54,10 +56,17 @@ class NewtonBound : public Solver<function_t> {
     //const vector_t delta_x = hessian.lu().solve(-next.gradient);
     //const vector_t delta_x = solver.solve(-next.gradient);
 
-    //Eigen::MUMPSLU<Eigen::SparseMatrix<double>> solver;
-    Eigen::MUMPSLDLT<Eigen::SparseMatrix<double>, Eigen::Upper> solver;
+    Eigen::MUMPSLU<Eigen::SparseMatrix<double>> solver;
+    //Eigen::MUMPSLDLT<Eigen::SparseMatrix<double>, Eigen::Upper> solver;
+    
+    //Eigen::PastixLDLT<Eigen::SparseMatrix<double>, Eigen::Upper> solver;
+    //Eigen::SimplicialLDLT<Eigen::SparseMatrix<double>> solver;
+
     solver.analyzePattern(hessian);
     solver.factorize(hessian);
+    
+    //solver.compute(hessian);
+
     const vector_t delta_x = solver.solve(-next.gradient);
     const scalar_t rate = linesearch::Armijo<function_t, 2>::Search(next.x, next.H, next.f, next.Aeq, next.beq, next.lambda, next.c, delta_x, function);
 

@@ -3,6 +3,7 @@ project(devQP)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 set(CMAKE_CXX_STANDARD 17)
 
+
 ## Defult build type: Debug ##
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Debug)
@@ -15,7 +16,7 @@ endif()
 find_package(Eigen3 REQUIRED)
 #find_package(MUMPS REQUIRED)
 #find_package(MATLAB COMPONENTS MX_LIBRARY)
-find_package(MATIO REQUIRED)
+find_package(MATIO)
 
 # -- IPOPT Solver
 set(IPOPT_HOME /home/detu/CoinIpopt)

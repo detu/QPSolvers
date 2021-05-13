@@ -120,6 +120,7 @@ int main(){
     Eigen::SparseVector<double> lambdas  = lambda.sparseView();
     Function fx;
     Function::scalar_t c(10);
+    //Function::scalar_t c(1);
     //auto state = fx.Eval(x0, H, f, Aeq, beq, lb, ub, lambda, c);
     auto state = fx.Eval(x0s, Hs, fs, Aeqs, beqs, lbs, ubs, lambdas, c);
 
@@ -138,7 +139,7 @@ int main(){
     double beta{0.9};
     double epsilonk = 1/c;
     double etak = eta0 / pow(c,alpha);
-    double eta{1e-2};
+    double eta{1e-1};
     int verbose = 1;
 
     if (verbose){
@@ -148,7 +149,8 @@ int main(){
         std::cout << "  f(x_k)   " << "\t";
         std::cout << "  ||gradf(x_k)||  "  << "\t";
         std::cout << "  ||constraint(x_k)||  "  << "\t";
-        std::cout << "        stepsize    " << std::endl;
+        std::cout << "        stepsize    " << "\t";
+	std::cout << "	      epsilonk    " << std::endl;
         std::cout << "------------------------------------------------------------------------------" << std::endl;
     }
 
@@ -171,11 +173,17 @@ int main(){
         jac  = cons.norm();
         if (jac <= etak){
             lambda   = lambda + c*cons;
-            epsilonk = epsilonk/c;
+	    if (epsilonk > 0.01){
+		epsilonk = epsilonk/c; 
+	    }
+            //epsilonk = epsilonk/c;
             etak     = etak / pow(c,beta);
         } else {
             c        = tau*c;
-            epsilonk = epsilon0/c;
+	    if (epsilonk > 0.01){
+		epsilonk = epsilon0/c;
+	    }
+            //epsilonk = epsilon0/c;
             etak     = eta0/pow(c,alpha);
 
         }
@@ -187,9 +195,10 @@ int main(){
         if (verbose){
             std::cout <<  k      << "\t" ;
             std::cout << std::fixed << std::setprecision(4) << state.value << "\t" << "\t";
-            std::cout << std::fixed << std::setprecision(4) << grad << "\t" << "\t"  << "\t" << "\t" << "\t" << "\t";
-            std::cout << std::fixed << std::setprecision(4) << jac << "\t" << "\t" << "\t" << "\t";
-            std::cout << std::fixed << std::setprecision(4) << normX << std::endl;
+            std::cout << std::fixed << std::setprecision(4) << grad << "\t" << "\t"  << "\t" ;
+            std::cout << std::fixed << std::setprecision(4) << jac << "\t" << "\t" << "\t";
+            std::cout << std::fixed << std::setprecision(4) << normX << "\t" << "\t";
+	    std::cout << std::fixed << std::setprecision(4) << epsilonk << std::endl;
         }
         k++;
     }

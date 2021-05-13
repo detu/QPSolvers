@@ -40,7 +40,7 @@ public:
 int main(){
 
 //    matio::MatioFile file("qpData.mat");
-//    //matio::MatioFile file("qpSparse.mat");
+    //matio::MatioFile file("qpSparse.mat");
 //    Eigen::MatrixXd H;
 //    Eigen::VectorXd f;
 //    Eigen::MatrixXd Aeq;
@@ -49,8 +49,8 @@ int main(){
 //    Eigen::VectorXd ub;
 //    Eigen::VectorXd x0;
 //    Eigen::VectorXd lambda;
-//
-//
+
+
 //    if (file.read_mat("Hm", H)) {
 //        std::cout << "error: " << file.lasterr() << std::endl;
 //    }

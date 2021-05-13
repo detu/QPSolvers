@@ -42,3 +42,4 @@ if(MUMPS_INCLUDE_DIR AND MUMPS_FOUND_LIBS)
 else()
   message(STATUS "MUMPS: Cound not find MUMPS. Try setting MUMPS env var.")
 endif()
+

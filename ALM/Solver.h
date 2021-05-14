@@ -117,7 +117,7 @@ template <class T>
 State<T> DefaultStoppingSolverState() {
   State<T> state;
   state.num_iterations     = 10000;
-  state.x_delta            = T{1e-9};
+  state.x_delta            = T{1e-3};
   state.x_delta_violations = 5;
   state.f_delta            = T{1e-9};
   state.f_delta_violations = 5;

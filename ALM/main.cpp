@@ -1,11 +1,13 @@
 #include "Function.h"
 #include "NewtonALM.h"
 #include "MATio"
+
 #include <iostream>
 #include <iomanip>
 #include <Eigen/Sparse>
 #include <type_traits>
 #include <limits>
+#include <fmt/core.h>
 
 using FunctionXd = cppoptlib::function::Function<double>;
 
@@ -144,14 +146,14 @@ int main(){
 
     if (verbose){
         // print header of outer iteration
-        std::cout << "------------------------------------------------------------------------------" << std::endl;
-        std::cout << " k "  << "\t";
-        std::cout << "  f(x_k)   " << "\t";
-        std::cout << "  ||gradf(x_k)||  "  << "\t";
-        std::cout << "  ||constraint(x_k)||  "  << "\t";
-        std::cout << "        stepsize    " << "\t";
-	std::cout << "	      epsilonk    " << std::endl;
-        std::cout << "------------------------------------------------------------------------------" << std::endl;
+        std::cout << "--------------------------------------------------------------------------------------------------------" << std::endl;
+        std::cout << "k   "      << "\t";
+        std::cout << "f(x_k)"    << "\t";
+        std::cout << "gradf(x_k)"<< "\t";
+        std::cout << "cons(x_k)" << "\t";
+        std::cout << "stepsize"  << "\t";
+	std::cout << "epsilonk"  << std::endl;
+        std::cout << "--------------------------------------------------------------------------------------------------------" << std::endl;
     }
 
 
@@ -194,11 +196,11 @@ int main(){
         x0    = solution.x;
         if (verbose){
             std::cout <<  k      << "\t" ;
-            std::cout << std::fixed << std::setprecision(4) << state.value << "\t" << "\t";
-            std::cout << std::fixed << std::setprecision(4) << grad << "\t" << "\t"  << "\t" ;
-            std::cout << std::fixed << std::setprecision(4) << jac << "\t" << "\t" << "\t";
-            std::cout << std::fixed << std::setprecision(4) << normX << "\t" << "\t";
-	    std::cout << std::fixed << std::setprecision(4) << epsilonk << std::endl;
+            std::cout << fmt::format("{:.4e}", state.value) << "\t";
+            std::cout << fmt::format("{:.4e}", grad)        << "\t" ;
+            std::cout << fmt::format("{:.4e}", jac)         << "\t";
+            std::cout << fmt::format("{:.4e}", normX)       << "\t";
+	    std::cout << fmt::format("{:.4e}", epsilonk)    << std::endl;
         }
         k++;
     }

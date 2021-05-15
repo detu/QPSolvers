@@ -17,6 +17,7 @@ find_package(Eigen3 REQUIRED)
 #find_package(MUMPS REQUIRED)
 #find_package(MATLAB COMPONENTS MX_LIBRARY)
 find_package(MATIO)
+find_package(fmt)
 
 # -- IPOPT Solver
 set(IPOPT_HOME /home/detu/CoinIpopt)
@@ -25,6 +26,7 @@ include_directories(${EIGEN3_INCLUDE_DIR})
 #include_directories(${MUMPS_INCLUDE_DIR})
 include_directories(${MATLAB_INCLUDE_DIRS})
 include_directories(${MATIO_INCLUDE_DIRS})
+include_directories(${fmt_INCLUDE_DIR})
 
 # CoinIpopt
 include_directories(
@@ -38,6 +40,7 @@ link_directories(
 
 message("${CMAKE_MODULE_PATH}")
 message("${EIGEN3_INCLUDE_DIR}")
+message("${fmt_INCLUDE_DIR}")
 
 #set(MUMPS_INCLUDE_DIR /usr/local/include/coin-or/mumps)
 #set(EIG_MEXES almbound)
@@ -51,7 +54,7 @@ message("${EIGEN3_INCLUDE_DIR}")
 #add_executable(mextest mextest.cpp)
 #add_executable(simple simple.cc)
 add_executable(main main.cpp)
-target_link_libraries(main ${MATIO_LIBRARIES})
+target_link_libraries(main ${MATIO_LIBRARIES} ${fmt_LIBRARY})
 target_link_libraries(main libcoinmumps.a)
 target_link_libraries(main libcoinlapack.a)
 target_link_libraries(main libcoinblas.a)

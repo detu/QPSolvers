@@ -3,13 +3,10 @@
 #define INCLUDE_CPPOPTLIB_SOLVER_ALM_BOUND_H_
 
 #include "Armijo.h"
-#include <Eigen/Sparse>
 #include "Solver.h"  // NOLINT
 #include "speye.h"
 #include "MUMPSSupport"
-//#include <Eigen/IterativeLinearSolvers>
-//#include "Eigen/PaStiXSupport"
-//#include "Eigen/SparseCholesky"
+#include <Eigen/Sparse>
 
 namespace cppoptlib::solver {
 
@@ -48,7 +45,6 @@ class NewtonBound : public Solver<function_t> {
     constexpr scalar_t safe_guard = 1e-5;
     hessian_t identity;
     speye(dim_, identity);
-    //const hessian_t hessian = next.hessian + safe_guard * hessian_t::Identity(dim_, dim_);
     const hessian_t hessian = next.hessian + safe_guard * identity;
 
     //Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
@@ -73,27 +69,19 @@ class NewtonBound : public Solver<function_t> {
     const vector_t delta_x = solver.solve(-next.gradient);
     const scalar_t rate = linesearch::Armijo<function_t, 2>::Search(next.x, next.H, next.f, next.Aeq, next.beq, next.lambda, next.c, delta_x, function);
 
-    // project (next.x + rate * delta_x to bound constraint using KKT_boundProjection method
-    //return function.Eval(next.x + rate * delta_x, next.lambda, next.c, next.lb, next.ub, 2);
-      return function.Eval(boundProj(next.x + rate * delta_x, next.ub, next.lb), next.H, next.f, next.Aeq, next.beq, next.lb, next.ub, next.lambda, next.c, 2);
+    return function.Eval(boundProj(next.x + rate * delta_x, next.ub, next.lb), next.H, next.f, next.Aeq, next.beq, next.lb, next.ub, next.lambda, next.c, 2);
   }
 
  private:
   int dim_;
 
-    // Add a method for gradient projection for bound constraint
-    vector_t boundProj(const vector_t &x, const vector_t &upper, const vector_t &lower){
-        // see gradproj.m or GradProj.h
-        auto ndim = x.size();
-        //vector_t px = Eigen::MatrixXd::Zero(ndim, 1);
-        Eigen::SparseVector<double> px(ndim);
-        px.setZero();
-        //px = x.array().min(upper.array());
-        px = x.cwiseMin(upper);
-        //px = x.array().max(lower.array());
-        px = x.cwiseMax(lower);
-        return px;
-    }
+  vector_t boundProj(const vector_t &x, const vector_t &upper, const vector_t &lower){
+      Eigen::SparseVector<double> px(x.size());
+      px.setZero();
+      px = x.cwiseMin(upper);
+      px = x.cwiseMax(lower);
+      return px;
+  }
 
 };
 

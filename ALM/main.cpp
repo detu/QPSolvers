@@ -3,10 +3,6 @@
 #include "MATio"
 
 #include <iostream>
-#include <iomanip>
-#include <Eigen/Sparse>
-#include <type_traits>
-#include <limits>
 #include <fmt/core.h>
 
 using FunctionXd = cppoptlib::function::Function<double>;
@@ -122,16 +118,11 @@ int main(){
     Eigen::SparseVector<double> lambdas  = lambda.sparseView();
     Function fx;
     Function::scalar_t c(10);
-    //Function::scalar_t c(1);
-    //auto state = fx.Eval(x0, H, f, Aeq, beq, lb, ub, lambda, c);
     auto state = fx.Eval(x0s, Hs, fs, Aeqs, beqs, lbs, ubs, lambdas, c);
 
     cppoptlib::solver::NewtonBound<Function> solver;
 
-    //double cons{0};
-    //Eigen::Vector<double, Eigen::Dynamic> cons;
     Eigen::SparseVector<double> cons(numC);
-    //Eigen::Vector<double, Eigen::Dynamic> x;
     Eigen::SparseVector<double> x(numX);
     double eta0{0.1258925};
     double c0{10};
@@ -146,14 +137,14 @@ int main(){
 
     if (verbose){
         // print header of outer iteration
-        std::cout << "-------------------------------------------------------------------------------------------" << std::endl;
+        std::cout << "---------------------------------------------------------------------------------------" << std::endl;
         std::cout << "k    "     << "\t";
         std::cout << "f(x_k)"    << "\t" << "\t";
         std::cout << "gradf(x_k)"<< "\t";
         std::cout << "cons(x_k)" << "\t";
         std::cout << "stepsize"  << "\t";
-	std::cout << "epsilonk"  << std::endl;
-        std::cout << "-------------------------------------------------------------------------------------------" << std::endl;
+	    std::cout << "epsilonk"  << std::endl;
+        std::cout << "---------------------------------------------------------------------------------------" << std::endl;
     }
 
 
@@ -200,7 +191,7 @@ int main(){
             std::cout << fmt::format("{:.4e}", grad)        << "\t" ;
             std::cout << fmt::format("{:.4e}", jac)         << "\t";
             std::cout << fmt::format("{:.4e}", normX)       << "\t";
-	    std::cout << fmt::format("{:.4e}", epsilonk)    << std::endl;
+	        std::cout << fmt::format("{:.4e}", epsilonk)    << std::endl;
         }
         k++;
     }

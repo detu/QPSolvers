@@ -89,7 +89,7 @@ int main(){
 //         -47;
 //
 //    lambda.setZero();
-//    Aeq << 0, 0, 0,
+//    Aeq << 1, 0, 0,
 //           0, 0, 0,
 //           0, 0, 0;
 //    beq << 2,
@@ -119,7 +119,6 @@ int main(){
     Eigen::SparseVector<double> lambdas  = lambda.sparseView();
     Function fx;
     Function::scalar_t c(10);
-    //auto state = fx.Eval(x0s, Hs, fs, Aeqs, beqs, lbs, ubs, lambdas, c);
 
     cppoptlib::solver::NewtonBound<Function> solver;
 
@@ -133,7 +132,7 @@ int main(){
     double beta{0.9};
     double epsilonk = 1/c;
     double etak = eta0 / pow(c,alpha);
-    double eta{1e-1};
+    double eta{1e-2};
     int verbose = 1;
 
     if (verbose){
@@ -157,10 +156,12 @@ int main(){
     double jac;
     int k = 1;
     auto start = std::chrono::high_resolution_clock::now();
+    //auto state = fx.Eval(x0s, Hs, fs, Aeqs, beqs, lbs, ubs, lambdas, c);
     while(grad > eta && normX > eta) {
         //solver.setStoppingCriteria(epsilonk);
         //auto[solution, solver_state] = solver.Minimize(fx, x0, H, f, Aeq, beq,  lb, ub, lambda, c); // think how to supply stopping criteria here!
         auto[solution, solver_state] = solver.Minimize(fx, x0s, Hs, fs, Aeqs, beqs,  lbs, ubs, lambdas, c);
+        //auto[solution, solver_state] = solver.Minimize(fx, state);
         //state = fx.Eval(solution.x, solution.H, solution.f, solution.Aeq, solution.beq, solution.lb, solution.ub, solution.lambda, solution.c);
 
         // compute constraint value
@@ -185,16 +186,17 @@ int main(){
         normX = (solution.x - x0).norm();
         //normX = (solution.x - x0).lpNorm<Eigen::Infinity>();
         //grad  = state.gradient.template lpNorm<Eigen::Infinity>();
-        //grad  = state.gradient.norm();
+        grad  = solver_state.gradient_norm;
         x0    = solution.x;
         if (verbose){
             std::cout <<  k      << "\t" ;
             std::cout << fmt::format("{:.4e}", solution.value) << "\t";
-            std::cout << fmt::format("{:.4e}", solver_state.gradient_norm)        << "\t" ;
+            std::cout << fmt::format("{:.4e}", grad)        << "\t" ;
             std::cout << fmt::format("{:.4e}", jac)         << "\t";
             std::cout << fmt::format("{:.4e}", normX)       << "\t";
 	        std::cout << fmt::format("{:.4e}", epsilonk)    << std::endl;
         }
+        //auto state = solver_state;
         k++;
     }
     auto finish   = std::chrono::high_resolution_clock::now();

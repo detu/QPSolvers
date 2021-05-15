@@ -67,7 +67,8 @@ class NewtonBound : public Solver<function_t> {
     solver.compute(hessian);
 
     const vector_t delta_x = solver.solve(-next.gradient);
-    const scalar_t rate = linesearch::Armijo<function_t, 2>::Search(next.x, next.H, next.f, next.Aeq, next.beq, next.lambda, next.c, delta_x, function);
+    //const scalar_t rate = linesearch::Armijo<function_t, 2>::Search(next.x, next.H, next.f, next.Aeq, next.beq, next.lambda, next.c, delta_x, function);
+    const scalar_t rate = 1.0;
 
     return function.Eval(boundProj(next.x + rate * delta_x, next.ub, next.lb), next.H, next.f, next.Aeq, next.beq, next.lb, next.ub, next.lambda, next.c, 2);
   }
@@ -79,7 +80,7 @@ class NewtonBound : public Solver<function_t> {
       Eigen::SparseVector<double> px(x.size());
       px.setZero();
       px = x.cwiseMin(upper);
-      px = x.cwiseMax(lower);
+      px = px.cwiseMax(lower);
       return px;
   }
 

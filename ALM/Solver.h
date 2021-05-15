@@ -115,11 +115,11 @@ template <class T>
 State<T> DefaultStoppingSolverState() {
   State<T> state;
   state.num_iterations     = 10000;
-  state.x_delta            = T{1e-3};
-  state.x_delta_violations = 5;
-  state.f_delta            = T{1e-9};
-  state.f_delta_violations = 5;
-  state.gradient_norm      = T{1e-4};
+  state.x_delta            = T{1e-1};
+  state.x_delta_violations = 1;
+  state.f_delta            = T{1e-1};
+  state.f_delta_violations = 1;
+  state.gradient_norm      = T{1e-1};
   state.condition_hessian  = T{0};
   state.status             = Status::NotStarted;
   return state;

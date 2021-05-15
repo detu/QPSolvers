@@ -71,8 +71,6 @@ struct State {
 
     num_iterations++;
     f_delta = fabs(current_function_state.value - previous_function_state.value);
-    //x_delta = (current_function_state.x - previous_function_state.x).template lpNorm<Eigen::Infinity>();
-    //gradient_norm = current_function_state.gradient.template lpNorm<Eigen::Infinity>();
     x_delta = (current_function_state.x - previous_function_state.x).norm();
     gradient_norm = current_function_state.gradient.norm();
 
@@ -117,7 +115,7 @@ template <class T>
 State<T> DefaultStoppingSolverState() {
   State<T> state;
   state.num_iterations     = 10000;
-  state.x_delta            = T{1e-9};
+  state.x_delta            = T{1e-3};
   state.x_delta_violations = 5;
   state.f_delta            = T{1e-9};
   state.f_delta_violations = 5;

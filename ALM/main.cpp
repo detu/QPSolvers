@@ -1,11 +1,9 @@
 #include "Function.h"
 #include "NewtonALM.h"
 #include "MATio"
+
 #include <iostream>
-#include <iomanip>
-#include <Eigen/Sparse>
-#include <type_traits>
-#include <limits>
+#include <fmt/core.h>
 
 using FunctionXd = cppoptlib::function::Function<double>;
 
@@ -39,69 +37,69 @@ public:
 
 int main(){
 
-//    matio::MatioFile file("qpData.mat");
-//    //matio::MatioFile file("qpSparse.mat");
-//    Eigen::MatrixXd H;
-//    Eigen::VectorXd f;
-//    Eigen::MatrixXd Aeq;
-//    Eigen::VectorXd beq;
-//    Eigen::VectorXd lb;
-//    Eigen::VectorXd ub;
-//    Eigen::VectorXd x0;
-//    Eigen::VectorXd lambda;
+    matio::MatioFile file("qpData.mat");
+    //matio::MatioFile file("qpSparse.mat");
+    Eigen::MatrixXd H;
+    Eigen::VectorXd f;
+    Eigen::MatrixXd Aeq;
+    Eigen::VectorXd beq;
+    Eigen::VectorXd lb;
+    Eigen::VectorXd ub;
+    Eigen::VectorXd x0;
+    Eigen::VectorXd lambda;
+
+
+    if (file.read_mat("Hm", H)) {
+        std::cout << "error: " << file.lasterr() << std::endl;
+    }
+    if (file.read_mat("f", f)) {
+        std::cout << "error: " << file.lasterr() << std::endl;
+    }
+    if (file.read_mat("Aeq", Aeq)) {
+        std::cout << "error: " << file.lasterr() << std::endl;
+    }
+    if (file.read_mat("beq", beq)) {
+        std::cout << "error: " << file.lasterr() << std::endl;
+    }
+    if (file.read_mat("lb", lb)) {
+        std::cout << "error: " << file.lasterr() << std::endl;
+    }
+    if (file.read_mat("ub", ub)) {
+        std::cout << "error: " << file.lasterr() << std::endl;
+    }
+
+
+//    Eigen::Vector3d x0;
+//    Eigen::Matrix3d H;
+//    Eigen::Vector3d f;
+//    Eigen::Matrix3d Aeq;
+//    Eigen::Vector3d beq;
+//    Eigen::Vector3d lb,ub;
+//    Eigen::Vector3d lambda;
 //
+//    x0 << 0,
+//          0,
+//          0;
+//    H << 5, -2, -1,
+//         -2, 4, 3,
+//         -1, 3, 5;
+//    f << 2,
+//         -35,
+//         -47;
 //
-//    if (file.read_mat("Hm", H)) {
-//        std::cout << "error: " << file.lasterr() << std::endl;
-//    }
-//    if (file.read_mat("f", f)) {
-//        std::cout << "error: " << file.lasterr() << std::endl;
-//    }
-//    if (file.read_mat("Aeq", Aeq)) {
-//        std::cout << "error: " << file.lasterr() << std::endl;
-//    }
-//    if (file.read_mat("beq", beq)) {
-//        std::cout << "error: " << file.lasterr() << std::endl;
-//    }
-//    if (file.read_mat("lb", lb)) {
-//        std::cout << "error: " << file.lasterr() << std::endl;
-//    }
-//    if (file.read_mat("ub", ub)) {
-//        std::cout << "error: " << file.lasterr() << std::endl;
-//    }
-
-
-    Eigen::Vector3d x0;
-    Eigen::Matrix3d H;
-    Eigen::Vector3d f;
-    Eigen::Matrix3d Aeq;
-    Eigen::Vector3d beq;
-    Eigen::Vector3d lb,ub;
-    Eigen::Vector3d lambda;
-
-    x0 << 0,
-          0,
-          0;
-    H << 5, -2, -1,
-         -2, 4, 3,
-         -1, 3, 5;
-    f << 2,
-         -35,
-         -47;
-
-    lambda.setZero();
-    Aeq << 0, 0, 0,
-           0, 0, 0,
-           0, 0, 0;
-    beq << 2,
-           3,
-           0;
-    lb << 0,
-          0,
-          0;
-    ub << 5,
-          5,
-          5;
+//    lambda.setZero();
+//    Aeq << 0, 0, 0,
+//           0, 0, 0,
+//           0, 0, 0;
+//    beq << 2,
+//           3,
+//           0;
+//    lb << 0,
+//          0,
+//          0;
+//    ub << 5,
+//          5,
+//          5;
 
 
     int numX = Aeq.cols();
@@ -120,15 +118,11 @@ int main(){
     Eigen::SparseVector<double> lambdas  = lambda.sparseView();
     Function fx;
     Function::scalar_t c(10);
-    //auto state = fx.Eval(x0, H, f, Aeq, beq, lb, ub, lambda, c);
     auto state = fx.Eval(x0s, Hs, fs, Aeqs, beqs, lbs, ubs, lambdas, c);
 
     cppoptlib::solver::NewtonBound<Function> solver;
 
-    //double cons{0};
-    //Eigen::Vector<double, Eigen::Dynamic> cons;
     Eigen::SparseVector<double> cons(numC);
-    //Eigen::Vector<double, Eigen::Dynamic> x;
     Eigen::SparseVector<double> x(numX);
     double eta0{0.1258925};
     double c0{10};
@@ -138,18 +132,19 @@ int main(){
     double beta{0.9};
     double epsilonk = 1/c;
     double etak = eta0 / pow(c,alpha);
-    double eta{1e-4};
+    double eta{1e-1};
     int verbose = 1;
 
     if (verbose){
         // print header of outer iteration
-        std::cout << "------------------------------------------------------------------------------" << std::endl;
-        std::cout << " k "  << "\t";
-        std::cout << "  f(x_k)   " << "\t";
-        std::cout << "  ||gradf(x_k)||  "  << "\t";
-        std::cout << "  ||constraint(x_k)||  "  << "\t";
-        std::cout << "        stepsize    " << std::endl;
-        std::cout << "------------------------------------------------------------------------------" << std::endl;
+        std::cout << "---------------------------------------------------------------------------------------" << std::endl;
+        std::cout << "k    "     << "\t";
+        std::cout << "f(x_k)"    << "\t" << "\t";
+        std::cout << "gradf(x_k)"<< "\t";
+        std::cout << "cons(x_k)" << "\t";
+        std::cout << "stepsize"  << "\t";
+	    std::cout << "epsilonk"  << std::endl;
+        std::cout << "---------------------------------------------------------------------------------------" << std::endl;
     }
 
 
@@ -171,11 +166,17 @@ int main(){
         jac  = cons.norm();
         if (jac <= etak){
             lambda   = lambda + c*cons;
-            epsilonk = epsilonk/c;
+	    if (epsilonk > 0.01){
+		epsilonk = epsilonk/c; 
+	    }
+            //epsilonk = epsilonk/c;
             etak     = etak / pow(c,beta);
         } else {
             c        = tau*c;
-            epsilonk = epsilon0/c;
+	    if (epsilonk > 0.01){
+		epsilonk = epsilon0/c;
+	    }
+            //epsilonk = epsilon0/c;
             etak     = eta0/pow(c,alpha);
 
         }
@@ -186,15 +187,16 @@ int main(){
         x0    = solution.x;
         if (verbose){
             std::cout <<  k      << "\t" ;
-            std::cout << std::fixed << std::setprecision(4) << state.value << "\t" << "\t";
-            std::cout << std::fixed << std::setprecision(4) << grad << "\t" << "\t"  << "\t" << "\t" << "\t" << "\t";
-            std::cout << std::fixed << std::setprecision(4) << jac << "\t" << "\t" << "\t" << "\t";
-            std::cout << std::fixed << std::setprecision(4) << normX << std::endl;
+            std::cout << fmt::format("{:.4e}", state.value) << "\t";
+            std::cout << fmt::format("{:.4e}", grad)        << "\t" ;
+            std::cout << fmt::format("{:.4e}", jac)         << "\t";
+            std::cout << fmt::format("{:.4e}", normX)       << "\t";
+	        std::cout << fmt::format("{:.4e}", epsilonk)    << std::endl;
         }
         k++;
     }
 
-    std::cout << "argmin " << x0.transpose() << std::endl;
+    //std::cout << "argmin " << x0.transpose() << std::endl;
     return 0;
 }
 

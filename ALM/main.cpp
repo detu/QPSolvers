@@ -89,18 +89,18 @@ int main(){
 //         -47;
 //
 //    lambda.setZero();
-//    Aeq << 1, 0, 0,
+//    Aeq << 0, 0, 0,
 //           0, 0, 0,
 //           0, 0, 0;
-//    beq << 2,
+//    beq << 0,
 //           3,
 //           0;
 //    lb << 0,
 //          0,
 //          0;
-//    ub << 5,
-//          5,
-//          5;
+//    ub << 10,
+//          10,
+//          10;
 
 
     int numX = Aeq.cols();
@@ -132,14 +132,14 @@ int main(){
     double beta{0.9};
     double epsilonk = 1/c;
     double etak = eta0 / pow(c,alpha);
-    double eta{1e-1};
+    double eta{1e-2};
     int verbose = 1;
 
     if (verbose){
         // print header of outer iteration
         std::cout << "---------------------------------------------------------------------------------------" << std::endl;
         std::cout << "k    "     << "\t";
-        std::cout << "f(x_k)"    << "\t" << "\t";
+        std::cout << "f(x_k)"    << "\t";
         std::cout << "gradf(x_k)"<< "\t";
         std::cout << "cons(x_k)" << "\t";
         std::cout << "stepsize"  << "\t";
@@ -156,13 +156,11 @@ int main(){
     double jac;
     int k = 1;
     auto start = std::chrono::high_resolution_clock::now();
-    //auto state = fx.Eval(x0s, Hs, fs, Aeqs, beqs, lbs, ubs, lambdas, c);
+    auto state = fx.Eval(x0s, Hs, fs, Aeqs, beqs, lbs, ubs, lambdas, c);
     while(grad > eta && normX > eta) {
         //solver.setStoppingCriteria(epsilonk);
-        //auto[solution, solver_state] = solver.Minimize(fx, x0, H, f, Aeq, beq,  lb, ub, lambda, c); // think how to supply stopping criteria here!
-        auto[solution, solver_state] = solver.Minimize(fx, x0s, Hs, fs, Aeqs, beqs,  lbs, ubs, lambdas, c);
-        //auto[solution, solver_state] = solver.Minimize(fx, state);
-        //state = fx.Eval(solution.x, solution.H, solution.f, solution.Aeq, solution.beq, solution.lb, solution.ub, solution.lambda, solution.c);
+        //auto[solution, solver_state] = solver.Minimize(fx, x0s, Hs, fs, Aeqs, beqs,  lbs, ubs, lambdas, c);
+        auto[solution, solver_state] = solver.Minimize(fx, state);
 
         // compute constraint value
         cons = solution.Aeq * solution.x - solution.beq;
@@ -184,8 +182,6 @@ int main(){
 
         }
         normX = (solution.x - x0).norm();
-        //normX = (solution.x - x0).lpNorm<Eigen::Infinity>();
-        //grad  = state.gradient.template lpNorm<Eigen::Infinity>();
         grad  = solver_state.gradient_norm;
         x0    = solution.x;
         if (verbose){
@@ -196,12 +192,12 @@ int main(){
             std::cout << fmt::format("{:.4e}", normX)       << "\t";
 	        std::cout << fmt::format("{:.4e}", epsilonk)    << std::endl;
         }
-        //auto state = solver_state;
+        auto state = solution;
         k++;
     }
     auto finish   = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::seconds>(finish - start).count();
-    std::cout << "runtime [seconds]: " << duration << "\n";
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(finish - start).count();
+    std::cout << "runtime [microseconds]: " << duration << "\n";
     //std::cout << "argmin " << x0.transpose() << std::endl;
     return 0;
 }

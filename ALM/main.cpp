@@ -139,7 +139,7 @@ int main(){
         // print header of outer iteration
         std::cout << "---------------------------------------------------------------------------------------" << std::endl;
         std::cout << "k    "     << "\t";
-        std::cout << "f(x_k)"    << "\t";
+        std::cout << "f(x_k)"    << "\t" << "\t";
         std::cout << "gradf(x_k)"<< "\t";
         std::cout << "cons(x_k)" << "\t";
         std::cout << "stepsize"  << "\t";

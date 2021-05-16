@@ -3,14 +3,13 @@
 #include "Function.h"
 #include "NewtonALM.h"
 #include <Eigen/Sparse>
+#include <fmt/core.h>
 #include <iostream>
 #include <type_traits>
 #include <limits>
 
 using FunctionXd   = cppoptlib::function::Function<double>;
 using MatlabSparse =  Eigen::SparseMatrix<double,Eigen::ColMajor,std::make_signed<mwIndex>::type> ;
-
-using FunctionXd = cppoptlib::function::Function<double>;
 
 class Function : public FunctionXd {
 public:
@@ -91,13 +90,13 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         if (nlhs != 1)
             throw std::invalid_argument("required one output arg");
 
-        Eigen::SparseMatrix<double> H   = matlab_to_eigen_sparse(prhs[0]);
-        Eigen::SparseVector<double> f   = matlab_to_eigen_sparse(prhs[1]);
+        Eigen::SparseMatrix<double> H = matlab_to_eigen_sparse(prhs[0]);
+        Eigen::SparseVector<double> f = matlab_to_eigen_sparse(prhs[1]);
         Eigen::SparseMatrix<double> Aeq = matlab_to_eigen_sparse(prhs[2]);
         Eigen::SparseVector<double> beq = matlab_to_eigen_sparse(prhs[3]);
-        Eigen::SparseVector<double> lb  = matlab_to_eigen_sparse(prhs[4]);
-        Eigen::SparseVector<double> ub  = matlab_to_eigen_sparse(prhs[5]);
-        Eigen::SparseVector<double> x0  = matlab_to_eigen_sparse(prhs[6]);
+        Eigen::SparseVector<double> lb = matlab_to_eigen_sparse(prhs[4]);
+        Eigen::SparseVector<double> ub = matlab_to_eigen_sparse(prhs[5]);
+        Eigen::SparseVector<double> x0 = matlab_to_eigen_sparse(prhs[6]);
         Eigen::SparseVector<double> lambda = matlab_to_eigen_sparse(prhs[7]);
 
 //        Aeq.setZero();
@@ -113,51 +112,94 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 //        auto state = fx.Eval(x0, H, f, Aeq, beq, lb, ub, lambda, c);
 //        std::cout << "this" << std::endl;
 //
-////        plhs[0] = EigenToMxArray(state.Aeq);
-//
-////        std::cout << fx(x0,lambda,c) << std::endl;
-////        std::cout << state.gradient << std::endl;
-////        std::cout << state.hessian << std::endl;
-//
-//        cppoptlib::solver::NewtonBound<Function> solver;
-//
-//        //double cons{0};
-//        Eigen::Vector<double, Eigen::Dynamic> cons;
-//        Eigen::Vector<double, Eigen::Dynamic> x;
-//        double eta0{0.1258925};
-//        double c0{10};
-//        double epsilon0{1/c0};
-//        double tau{10};
-//        double alpha{0.1};
-//        double beta{0.9};
-//        double epsilonk = 1/c;
-//        double etak = eta0 / pow(c,alpha);
-//        double eta{1e-6};
-//
-//
-//        // ganti stopping criteria buat ALM (liat buku N&W dan paper Andy)
-//        while(state.gradient.template lpNorm<Eigen::Infinity>() > eta) {
-//            solver.setStoppingCriteria(epsilonk);
-//            auto[solution, solver_state] = solver.Minimize(fx, x0, H, f, Aeq, beq,  lb, ub, lambda, c); // think how to supply stopping criteria here!
-//            state = fx.Eval(solution.x, solution.H, solution.f, solution.Aeq, solution.beq, solution.lb, solution.ub, solution.lambda, solution.c);
-//
-//            // compute constraint value
-//            //cons = solution.x[0]*solution.x[0] + solution.x[1]*solution.x[1] - 1;
-//            cons = solution.Aeq * solution.x - solution.beq;
-//            if (cons.norm() <= etak){
-//                lambda   = lambda + c*cons;
-//                epsilonk = epsilonk/c;
-//                etak     = etak / pow(c,beta);
-//            } else {
-//                c        = tau*c;
-//                epsilonk = epsilon0/c;
-//                etak     = eta0/pow(c,alpha);
-//
-//            }
-//            x = solution.x;
-//        }
-//        plhs[0] = EigenToMxArray(x);
-//
+//        plhs[0] = EigenToMxArray(state.Aeq.toDense());
+
+        int numX = Aeq.cols();
+        int numC = Aeq.rows();
+        //x0.setZero(numX);
+        //lambda.setZero(numC);
+
+        Function fx;
+        Function::scalar_t c(10);
+
+        cppoptlib::solver::NewtonBound<Function> solver;
+
+        Eigen::SparseVector<double> cons(numC);
+        Eigen::SparseVector<double> x(numX);
+        double eta0{0.1258925};
+        double c0{10};
+        double epsilon0{1 / c0};
+        double tau{10};
+        double alpha{0.1};
+        double beta{0.9};
+        double epsilonk = 1 / c;
+        double etak = eta0 / pow(c, alpha);
+        double eta{1e-2};
+        int verbose = 1;
+
+        if (verbose) {
+            // print header of outer iteration
+            std::cout << "---------------------------------------------------------------------------------------"
+                      << std::endl;
+            std::cout << "k    " << "\t";
+            std::cout << "f(x_k)" << "\t" << "\t";
+            std::cout << "gradf(x_k)" << "\t";
+            std::cout << "cons(x_k)" << "\t";
+            std::cout << "stepsize" << "\t";
+            std::cout << "epsilonk" << std::endl;
+            std::cout << "---------------------------------------------------------------------------------------"
+                      << std::endl;
+        }
+
+
+        // need to check if x0 is feasible (look at CT Kelley code)
+
+        // ganti stopping criteria buat ALM (liat buku N&W dan paper Andy)
+        double normX{100};
+        double grad{100};
+        double jac;
+        int k = 1;
+        auto state = fx.Eval(x0, H, f, Aeq, beq, lb, ub, lambda, c);
+        while (grad > eta && normX > eta) {
+            //solver.setStoppingCriteria(epsilonk);
+            //auto[solution, solver_state] = solver.Minimize(fx, x0s, Hs, fs, Aeqs, beqs,  lbs, ubs, lambdas, c);
+            auto[solution, solver_state] = solver.Minimize(fx, state);
+
+            // compute constraint value
+            cons = solution.Aeq * solution.x - solution.beq;
+            jac = cons.norm();
+            if (jac <= etak) {
+                lambda = lambda + c * cons;
+                if (epsilonk > 0.01) {
+                    epsilonk = epsilonk / c;
+                }
+                //epsilonk = epsilonk/c;
+                etak = etak / pow(c, beta);
+            } else {
+                c = tau * c;
+                if (epsilonk > 0.01) {
+                    epsilonk = epsilon0 / c;
+                }
+                //epsilonk = epsilon0/c;
+                etak = eta0 / pow(c, alpha);
+
+            }
+            normX = (solution.x - x0).norm();
+            grad = solver_state.gradient_norm;
+            x0 = solution.x;
+            if (verbose) {
+                std::cout << k << "\t";
+                std::cout << fmt::format("{:.4e}", solution.value) << "\t";
+                std::cout << fmt::format("{:.4e}", grad) << "\t";
+                std::cout << fmt::format("{:.4e}", jac) << "\t";
+                std::cout << fmt::format("{:.4e}", normX) << "\t";
+                std::cout << fmt::format("{:.4e}", epsilonk) << std::endl;
+            }
+            auto state = solution;
+            k++;
+
+        }
+        plhs[0] = EigenToMxArray(x0.toDense()); // change to eigen_to_matlab_sparse!
     }
     catch (std::exception& ex){
         mexErrMsgIdAndTxt("tmp::error", ex.what());

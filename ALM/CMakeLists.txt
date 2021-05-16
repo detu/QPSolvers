@@ -14,9 +14,9 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 find_package(Eigen3 REQUIRED)
-#find_package(MUMPS REQUIRED)
+find_package(MUMPS REQUIRED)
 find_package(MATLAB COMPONENTS MX_LIBRARY)
-find_package(MATIO)
+#find_package(MATIO)
 find_package(fmt)
 
 # -- IPOPT Solver
@@ -47,8 +47,8 @@ message("${fmt_INCLUDE_DIR}")
 set(EIG_MEXES qpAL)
 
 FOREACH(t ${EIG_MEXES})
-    #matlab_add_mex(NAME ${t} SRC ${t}.cpp	LINK_TO ${MATLAB_LIBRARIES} ${MUMPS_LIBRARIES})
-    matlab_add_mex(NAME ${t} SRC ${t}.cpp	LINK_TO ${MATLAB_LIBRARIES} ${fmt_LIBRARY} libcoinmumps.a libcoinlapack.a libcoinblas.a libcoinmetis.a gfortran)
+    matlab_add_mex(NAME ${t} SRC ${t}.cpp	LINK_TO ${MATLAB_LIBRARIES} ${MUMPS_LIBRARIES} ${fmt_LIBRARY})
+    #matlab_add_mex(NAME ${t} SRC ${t}.cpp	LINK_TO ${MATLAB_LIBRARIES} ${fmt_LIBRARY} libcoinmumps.a libcoinlapack.a libcoinblas.a libcoinmetis.a gfortran)
 ENDFOREACH(t ${EIG_MEXES})
 
 #add_executable(devQP function.h main.cpp)

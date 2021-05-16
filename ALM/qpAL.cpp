@@ -59,11 +59,13 @@ Eigen::Map<MatlabSparse > matlab_to_eigen_sparse(const mxArray * mat)
     return result;
 }
 
-mxArray* eigen_to_matlab_sparse(const Eigen::Ref<const MatlabSparse,Eigen::StandardCompressedFormat>& mat)
+mxArray* eigen_to_matlab_sparse(const Eigen::Ref<const Eigen::SparseVector<double>,Eigen::StandardCompressedFormat>& mat)
 {
     mxArray * result = mxCreateSparse (mat.rows(), mat.cols(), mat.nonZeros(), mxREAL);
-    const MatlabSparse::StorageIndex* ir = mat.innerIndexPtr();
-    const MatlabSparse::StorageIndex* jc = mat.outerIndexPtr();
+    //const MatlabSparse::StorageIndex* ir = mat.innerIndexPtr();
+    //const MatlabSparse::StorageIndex* jc = mat.outerIndexPtr();
+    const Eigen::SparseVector<double>::StorageIndex* ir = mat.innerIndexPtr();
+    const Eigen::SparseVector<double>::StorageIndex* jc = mat.outerIndexPtr();
     const double* pr = mat.valuePtr();
 
     mwIndex * ir2 = mxGetIr (result);
@@ -199,7 +201,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             k++;
 
         }
-        plhs[0] = EigenToMxArray(x0.toDense()); // change to eigen_to_matlab_sparse!
+        //plhs[0] = EigenToMxArray(x0.toDense()); // change to eigen_to_matlab_sparse!
+        plhs[0] = eigen_to_matlab_sparse(x0);
     }
     catch (std::exception& ex){
         mexErrMsgIdAndTxt("tmp::error", ex.what());

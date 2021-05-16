@@ -2,10 +2,13 @@
 #include "MexEig"
 #include "Function.h"
 #include "NewtonALM.h"
-#include <Eigen/Dense>
+#include <Eigen/Sparse>
 #include <iostream>
+#include <type_traits>
+#include <limits>
 
-using FunctionXd = cppoptlib::function::Function<double>;
+using FunctionXd   = cppoptlib::function::Function<double>;
+using MatlabSparse =  Eigen::SparseMatrix<double,Eigen::ColMajor,std::make_signed<mwIndex>::type> ;
 
 class Function : public FunctionXd {
 public:
@@ -33,7 +36,44 @@ public:
 
 // copy methods from here!
 //https://stackoverflow.com/questions/49952275/passing-sparse-arrays-from-matlab-to-eigen-c-and-back-to-matlab
+Eigen::Map<MatlabSparse > matlab_to_eigen_sparse(const mxArray * mat)
+{
+    mxAssert(mxGetClassID(mat) == mxDOUBLE_CLASS,
+             "Type of the input matrix isn't double");
+    mwSize     m = mxGetM (mat);
+    mwSize     n = mxGetN (mat);
+    mwSize    nz = mxGetNzmax (mat);
+    /*Theoretically fails in very very large matrices*/
+    mxAssert(nz <= std::numeric_limits< std::make_signed<mwIndex>::type>::max(),
+             "Unsupported Data size."
+    );
+    double  * pr = mxGetPr (mat);
+    MatlabSparse::StorageIndex* ir = reinterpret_cast<MatlabSparse::StorageIndex*>(mxGetIr (mat));
+    MatlabSparse::StorageIndex* jc = reinterpret_cast<MatlabSparse::StorageIndex*>(mxGetJc (mat));
+    Eigen::Map<MatlabSparse> result (m, n, nz, jc, ir, pr);
+    return result;
+}
 
+mxArray* eigen_to_matlab_sparse(const Eigen::Ref<const MatlabSparse,Eigen::StandardCompressedFormat>& mat)
+{
+    mxArray * result = mxCreateSparse (mat.rows(), mat.cols(), mat.nonZeros(), mxREAL);
+    const MatlabSparse::StorageIndex* ir = mat.innerIndexPtr();
+    const MatlabSparse::StorageIndex* jc = mat.outerIndexPtr();
+    const double* pr = mat.valuePtr();
+
+    mwIndex * ir2 = mxGetIr (result);
+    mwIndex * jc2 = mxGetJc (result);
+    double  * pr2 = mxGetPr (result);
+
+    for (mwIndex i = 0; i < mat.nonZeros(); i++) {
+        pr2[i] = pr[i];
+        ir2[i] = ir[i];
+    }
+    for (mwIndex i = 0; i < mat.cols() + 1; i++) {
+        jc2[i] = jc[i];
+    }
+    return result;
+}
 
 // [x, ..] = almbound(H,f,Aeb,beq,lb,ub,x0,lambda,options)
 // debug: save matrices and vectors in a *.mat file!

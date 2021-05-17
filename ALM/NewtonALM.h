@@ -48,26 +48,14 @@ class NewtonBound : public Solver<function_t> {
     speye(dim_, identity);
     const hessian_t hessian = next.hessian + safe_guard * identity;
 
-    Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
-    solver.compute(hessian);
-
-    //const vector_t delta_x = hessian.lu().solve(-next.gradient);
-    //const vector_t delta_x = solver.solve(-next.gradient);
-
-    //Eigen::MUMPSLU<Eigen::SparseMatrix<double>> solver;
-    //Eigen::MUMPSLDLT<Eigen::SparseMatrix<double>, Eigen::Upper|Eigen::Lower> solver;
-    
-    //Eigen::PastixLDLT<Eigen::SparseMatrix<double>, Eigen::Upper> solver;
-    //Eigen::SimplicialLDLT<Eigen::SparseMatrix<double>> solver;
-
-    //solver.analyzePattern(hessian);
-    //solver.factorize(hessian);
-    
-    //Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Upper> solver;
-    //Eigen::BiCGSTAB<Eigen::SparseMatrix<double>, Eigen::IdentityPreconditioner> solver;
+    //Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
     //solver.compute(hessian);
 
-    const vector_t delta_x = solver.solve(-next.gradient);
+    Eigen::MUMPSLDLT<Eigen::SparseMatrix<double>, Eigen::Upper|Eigen::Lower> solver;
+    //Eigen::MUMPSLDLT<Eigen::SparseMatrix<double>, Eigen::Upper> solver;
+    solver.compute(hessian);
+
+    const vector_t delta_x = solver.solve(std::move(-next.gradient));
     //const scalar_t rate = linesearch::Armijo<function_t, 2>::Search(next.x, next.H, next.f, next.Aeq, next.beq, next.lambda, next.c, delta_x, function);
     const scalar_t rate = 1.0;
 

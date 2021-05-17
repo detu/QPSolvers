@@ -5,6 +5,8 @@ https://github.com/rensor/fminslp
 before calling MATLAB:
 export LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libstdc++.so.6"
 
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/intel/oneapi/mkl/2021.2.0/lib/intel64/
+
 matlab sparse to Eigen:
 https://stackoverflow.com/questions/49952275/passing-sparse-arrays-from-matlab-to-eigen-c-and-back-to-matlab
 
@@ -15,3 +17,14 @@ https://github.com/zohannn/HUMP/blob/master/CMakeLists.txt
 
 Debug Mex file from Clion:
 https://www.jetbrains.com/help/clion/attaching-to-local-process.html
+
+Try MATLAB MUMPS interface:
+https://redbkit.github.io/redbKIT/download-install/
+
+
+https://se.mathworks.com/matlabcentral/answers/223469-how-to-revert-matlab-back-to-it-s-default-blas-and-lapack-libraries-after-setting-environment-variab
+    setenv('BLAS_VERSION','/usr/lib/libopenblas.so');
+    setenv('LAPACK_VERSION','/usr/lib/liblapack.so');
+    Y = mymex(X,F,G,H);
+    setenv('BLAS_VERSION','/usr/local/MATLAB/R2015a/bin/glnxa64/mkl.so')
+    setenv('LAPACK_VERSION','/usr/local/MATLAB/R2015a/bin/glnxa64/mkl.so')

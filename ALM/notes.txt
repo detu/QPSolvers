@@ -12,3 +12,6 @@ follow IPOPT and HUMP installation from:
 https://github.com/zohannn/CoinIpopt
 https://github.com/zohannn/HUMP
 https://github.com/zohannn/HUMP/blob/master/CMakeLists.txt
+
+Debug Mex file from Clion:
+https://www.jetbrains.com/help/clion/attaching-to-local-process.html

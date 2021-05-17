@@ -7,15 +7,14 @@
 
 #ifndef EIGEN_MUMPSSUPPORT_MODULE_H
 #define EIGEN_MUMPSSUPPORT_MODULE_H
-
+#define EIGEN_USE_MKL_ALL
 #include "Eigen/SparseCore"
-
 #include "Eigen/src/Core/util/DisableStupidWarnings.h"
 
-#include <smumps_c.h>
+//#include <smumps_c.h>
 #include <dmumps_c.h>
-#include <cmumps_c.h>
-#include <zmumps_c.h>
+//#include <cmumps_c.h>
+//#include <zmumps_c.h>
 
 #ifdef complex
 #undef complex

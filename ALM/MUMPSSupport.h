@@ -62,12 +62,12 @@ struct mumps_traits<MUMPSLDLT<_MatrixType, Options>>
 template <typename T>
 struct MUMPSAPIWrapper;
 
-template <>
-struct MUMPSAPIWrapper<float>
-{
-    using MUMPS_STRUC_C = SMUMPS_STRUC_C;
-    static void mumps_c(MUMPS_STRUC_C& info) { smumps_c(&info); }
-};
+//template <>
+//struct MUMPSAPIWrapper<float>
+//{
+//    using MUMPS_STRUC_C = SMUMPS_STRUC_C;
+//    static void mumps_c(MUMPS_STRUC_C& info) { smumps_c(&info); }
+//};
 
 template <>
 struct MUMPSAPIWrapper<double>
@@ -76,19 +76,19 @@ struct MUMPSAPIWrapper<double>
     static void mumps_c(MUMPS_STRUC_C& info) { dmumps_c(&info); }
 };
 
-template <>
-struct MUMPSAPIWrapper<std::complex<float>>
-{
-    using MUMPS_STRUC_C = CMUMPS_STRUC_C;
-    static void mumps_c(MUMPS_STRUC_C& info) { cmumps_c(&info); }
-};
-
-template <>
-struct MUMPSAPIWrapper<std::complex<double>>
-{
-    using MUMPS_STRUC_C = ZMUMPS_STRUC_C;
-    static void mumps_c(MUMPS_STRUC_C& info) { zmumps_c(&info); }
-};
+//template <>
+//struct MUMPSAPIWrapper<std::complex<float>>
+//{
+//    using MUMPS_STRUC_C = CMUMPS_STRUC_C;
+//    static void mumps_c(MUMPS_STRUC_C& info) { cmumps_c(&info); }
+//};
+//
+//template <>
+//struct MUMPSAPIWrapper<std::complex<double>>
+//{
+//    using MUMPS_STRUC_C = ZMUMPS_STRUC_C;
+//    static void mumps_c(MUMPS_STRUC_C& info) { zmumps_c(&info); }
+//};
 
 namespace mumps
 {

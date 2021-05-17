@@ -2,6 +2,7 @@
 #ifndef INCLUDE_CPPOPTLIB_SOLVER_ALM_BOUND_H_
 #define INCLUDE_CPPOPTLIB_SOLVER_ALM_BOUND_H_
 
+#define EIGEN_USE_MKL_ALL
 #include "Armijo.h"
 #include "Solver.h"  // NOLINT
 #include "speye.h"
@@ -66,7 +67,8 @@ class NewtonBound : public Solver<function_t> {
     //Eigen::BiCGSTAB<Eigen::SparseMatrix<double>, Eigen::IdentityPreconditioner> solver;
     solver.compute(hessian);
 
-    const vector_t delta_x = solver.solve(-next.gradient);
+    //const vector_t delta_x = solver.solve(-next.gradient);
+    vector_t delta_x = solver.solve(-next.gradient);
     //const scalar_t rate = linesearch::Armijo<function_t, 2>::Search(next.x, next.H, next.f, next.Aeq, next.beq, next.lambda, next.c, delta_x, function);
     const scalar_t rate = 1.0;
 

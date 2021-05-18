@@ -249,10 +249,9 @@ cmake_policy(SET CMP0057 NEW) # if IN_LIST
 
 set(_FindMatlab_SELF_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
-include(${CMAKE_CURRENT_LIST_DIR}/FindPackageHandleStandardArgs.cmake)
 include(CheckCXXCompilerFlag)
 include(CheckCCompilerFlag)
-
+include(FindPackageHandleStandardArgs)
 
 # The currently supported versions. Other version can be added by the user by
 # providing MATLAB_ADDITIONAL_VERSIONS

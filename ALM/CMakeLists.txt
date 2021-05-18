@@ -20,12 +20,13 @@ find_package(MATLAB COMPONENTS MX_LIBRARY)
 find_package(MATIO)
 find_package(fmt)
 find_package(MKL REQUIRED)
+find_package(MUMPS REQUIRED)
 
-set(MUMPS_HOME /home/detu/ThirdParty-Mumps/Debug)
-set(MUMPS_INCLUDE_DIR ${MUMPS_HOME}/include/coin-or/mumps)
+#set(MUMPS_HOME /home/detu/ThirdParty-Mumps/Debug)
+#set(MUMPS_INCLUDE_DIR ${MUMPS_HOME}/include/coin-or/mumps)
 
 include_directories(${EIGEN3_INCLUDE_DIR})
-include_directories(${MUMPS_INCLUDE_DIR})
+include_directories(${MUMPS_INCLUDE_DIRS})
 include_directories(${MATLAB_INCLUDE_DIRS})
 include_directories(${MATIO_INCLUDE_DIRS})
 include_directories(${fmt_INCLUDE_DIR})
@@ -34,17 +35,20 @@ include_directories(${MKL_INCLUDE_DIR})
 message("${CMAKE_MODULE_PATH}")
 message("${EIGEN3_INCLUDE_DIR}")
 message("${fmt_INCLUDE_DIR}")
-message("${MUMPS_INCLUDE_DIR}")
+message("${MUMPS_INCLUDE_DIRS}")
+message("${MUMPS_LIBRARIES}")
 
+#add_library(eigenMumps SHARED)
 
-link_directories(
-        ${MUMPS_HOME}/lib
-)
+#link_directories(
+#        ${MUMPS_HOME}/lib
+#)
 #set(EIG_MEXES almbound)
 set(EIG_MEXES qpAL)
 
 FOREACH(t ${EIG_MEXES})
-    matlab_add_mex(NAME ${t} SRC ${t}.cpp	LINK_TO ${MATLAB_LIBRARIES} libcoinmumps.so.2.1.0 ${fmt_LIBRARY} ${MKL_LIBRARY} gfortran)
+  #matlab_add_mex(NAME ${t} SRC ${t}.cpp	LINK_TO ${MATLAB_LIBRARIES} libcoinmumps.so.2.1.0 ${fmt_LIBRARY} ${MKL_LIBRARY} gfortran)
+  matlab_add_mex(NAME ${t} SRC ${t}.cpp LINK_TO ${MATLAB_LIBRARIES} ${MUMPS_LIBRARIES} ${fmt_LIBRARY} ${MKL_LIBRARY})
 ENDFOREACH(t ${EIG_MEXES})
 
 

@@ -9,7 +9,7 @@
 
 #ifndef EIGEN_MUMPSSUPPORT_H
 #define EIGEN_MUMPSSUPPORT_H
-
+#define EIGEN_USE_MKL_ALL
 #include <complex>
 #include <stdexcept>
 

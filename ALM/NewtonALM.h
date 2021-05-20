@@ -8,6 +8,7 @@
 #include "speye.h"
 #include "MUMPSSupport"
 #include <Eigen/Sparse>
+#include<Eigen/SparseCholesky>
 
 namespace cppoptlib::solver {
 
@@ -53,6 +54,8 @@ class NewtonBound : public Solver<function_t> {
 
     Eigen::MUMPSLDLT<Eigen::SparseMatrix<double>, Eigen::Upper|Eigen::Lower> solver;
     //Eigen::MUMPSLDLT<Eigen::SparseMatrix<double>, Eigen::Upper> solver;
+
+    //Eigen::SimplicialLDLT<Eigen::SparseMatrix<double>> solver;
     solver.compute(hessian);
 
     const vector_t delta_x = solver.solve(std::move(-next.gradient));

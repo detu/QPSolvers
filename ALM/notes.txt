@@ -29,6 +29,16 @@ https://se.mathworks.com/matlabcentral/answers/223469-how-to-revert-matlab-back-
     setenv('BLAS_VERSION','/usr/local/MATLAB/R2015a/bin/glnxa64/mkl.so')
     setenv('LAPACK_VERSION','/usr/local/MATLAB/R2015a/bin/glnxa64/mkl.so')
 
+swig:
+http://swig.org/doc.html
+https://en.opensuse.org/images/e/eb/Kkaempf_KnowledgeSharing_Swig.pdf
+
+cmake-swig:
+https://stackoverflow.com/questions/1498969/generating-swig-bindings-with-cmake
+https://github.com/songyuncen/learn_swig_cmake
+https://github.com/danielunderwood/swig-example
+http://www.jacobra.com/post/cmake-swig/
+
 Swig-matlab:
 https://github.com/robotology/yarp-matlab-bindings (https://github.com/robotology/yarp-matlab-bindings/blob/master/matlab/CMakeLists.txt)
 https://github.com/rdeits/swig-matlab
@@ -39,6 +49,10 @@ https://docs.helics.org/en/latest/installation/language.html
 https://github.com/GMLC-TDC/HELICS
 
 http://stir.sourceforge.net/wiki/index.php/Installing_the_MATLAB_interface_to_STIR
+https://github.com/UCL/STIR
+
+https://pypi.org/project/idyntree/
+https://github.com/robotology/idyntree/blob/master/doc/dev/faqs.md#how-to-add-wrap-a-new-class-or-function-with-swig
 
 https://stackoverflow.com/questions/26664945/matlab-binding-of-a-c-library-using-swig:
 https://github.com/CoolProp/CoolProp/blob/master/dev/scripts/build_swig_matlab.py

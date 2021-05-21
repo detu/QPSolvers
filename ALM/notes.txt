@@ -28,3 +28,12 @@ https://se.mathworks.com/matlabcentral/answers/223469-how-to-revert-matlab-back-
     Y = mymex(X,F,G,H);
     setenv('BLAS_VERSION','/usr/local/MATLAB/R2015a/bin/glnxa64/mkl.so')
     setenv('LAPACK_VERSION','/usr/local/MATLAB/R2015a/bin/glnxa64/mkl.so')
+
+Swig-matlab:
+https://github.com/robotology/yarp-matlab-bindings
+https://github.com/rdeits/swig-matlab
+https://github.com/casadi/casadi/tree/master/swig
+https://www.iram.fr/~roche/code/python/files/SWIGTutorial.pdf
+https://docs.helics.org/en/latest/developer-guide/swig.html
+https://docs.helics.org/en/latest/installation/language.html
+https://github.com/GMLC-TDC/HELICS

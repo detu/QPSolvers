@@ -38,6 +38,7 @@ https://stackoverflow.com/questions/1498969/generating-swig-bindings-with-cmake
 https://github.com/songyuncen/learn_swig_cmake
 https://github.com/danielunderwood/swig-example
 http://www.jacobra.com/post/cmake-swig/
+https://blog.mbedded.ninja/programming/languages/python/python-swig-bindings-from-cplusplus/
 
 Swig-matlab:
 https://github.com/robotology/yarp-matlab-bindings (https://github.com/robotology/yarp-matlab-bindings/blob/master/matlab/CMakeLists.txt)

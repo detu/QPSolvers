@@ -99,21 +99,21 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         if (nlhs != 1)
             throw std::invalid_argument("required one output arg");
 
-        //Eigen::SparseMatrix<double> H = matlab_to_eigen_sparse(prhs[0]);
-        //Eigen::SparseVector<double> f = matlab_to_eigen_sparse(prhs[1]);
+        Eigen::SparseMatrix<double> H = matlab_to_eigen_sparse(prhs[0]);
+        Eigen::SparseVector<double> f = matlab_to_eigen_sparse(prhs[1]);
 //        Eigen::SparseMatrix<double> Aeq = matlab_to_eigen_sparse(prhs[2]);
 //        Eigen::SparseVector<double> beq = matlab_to_eigen_sparse(prhs[3]);
 //        Eigen::SparseVector<double> lb = matlab_to_eigen_sparse(prhs[4]);
 //        Eigen::SparseVector<double> ub = matlab_to_eigen_sparse(prhs[5]);
 //        Eigen::SparseVector<double> x0 = matlab_to_eigen_sparse(prhs[6]);
 //        Eigen::SparseVector<double> lambda = matlab_to_eigen_sparse(prhs[7]);
-        Eigen::MatrixXd H;
-        Eigen::VectorXd f;
+        //Eigen::MatrixXd H;
+        //Eigen::VectorXd f;
 
-        MxArrayToEigen(H, prhs[0]);
-        MxArrayToEigen(f, prhs[1]);
-        Eigen::SparseMatrix<double> Hs   = H.sparseView();
-        Eigen::SparseVector<double> fs   = f.sparseView();
+        //MxArrayToEigen(H, prhs[0]);
+        //MxArrayToEigen(f, prhs[1]);
+        //Eigen::SparseMatrix<double> Hs   = H.sparseView();
+        //Eigen::SparseVector<double> fs   = f.sparseView();
 
 //
 //        int numX = Aeq.cols();
@@ -164,7 +164,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         Eigen::MUMPSLDLT<Eigen::SparseMatrix<double>, Eigen::Upper|Eigen::Lower> solver;;
         //Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
         //Eigen::SimplicialLDLT<Eigen::SparseMatrix<double>> solver;
-        solver.compute(Hs);
+        solver.compute(H);
         auto infoH = solver.info();
         //if(!solver.info()) {
             // decomposition failed
@@ -175,7 +175,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 
         //Eigen::SparseVector<double> delta_x = solver.solve(std::move(-state.gradient));
-        Eigen::SparseVector<double>  delta_x = solver.solve(std::move(-fs));
+        Eigen::SparseVector<double>  delta_x = solver.solve(std::move(-f));
         auto infoX = solver.info();
 //        if(!solver.info()) {
 //            // solving failed

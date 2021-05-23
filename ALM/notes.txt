@@ -5,7 +5,8 @@ https://github.com/rensor/fminslp
 before calling MATLAB:
 export LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libstdc++.so.6"
 
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/intel/oneapi/mkl/2021.2.0/lib/intel64/
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/intel/oneapi/mkl/2021.2.0/lib/intel64/:/home/detu/ThirdParty-Mumps/Debug/lib
+bass source /opt/intel/oneapi/setvars.sh
 
 matlab sparse to Eigen:
 https://stackoverflow.com/questions/49952275/passing-sparse-arrays-from-matlab-to-eigen-c-and-back-to-matlab

@@ -1,6 +1,8 @@
 
-setenv('BLAS_VERSION','/opt/intel/oneapi/mkl/2021.2.0/lib/intel64/libmkl_core.so');
-setenv('LAPACK_VERSION','/opt/intel/oneapi/mkl/2021.2.0/lib/intel64/libmkl_core.so')
+%setenv('BLAS_VERSION','/opt/intel/oneapi/mkl/2021.2.0/lib/intel64/libmkl_core.so');
+setenv('BLAS_VERSION','/opt/intel/oneapi/mkl/2021.2.0/lib/intel64/libmkl_rt.so');
+%setenv('LAPACK_VERSION','/opt/intel/oneapi/mkl/2021.2.0/lib/intel64/libmkl_core.so');
+setenv('LAPACK_VERSION','/opt/intel/oneapi/mkl/2021.2.0/lib/intel64/libmkl_rt.so');
 
 H = sparse([5 -2 -1; -2 4 3; -1 3 5]);
 f = sparse([2; -35; -47]);
@@ -21,6 +23,7 @@ lambda = sparse(zeros(3,1));
 
 %x = quadprog(H,f,A,b,Aeq,beq,lb,ub) 
 tic;
-x = qpAL(H,f,Aeq,beq,lb,ub,x0,lambda);
+%x = qpAL(H,f,Aeq,beq,lb,ub,x0,lambda);
+x = qpAL(H,f);
 toc;
 

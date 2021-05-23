@@ -114,3 +114,6 @@ if (COOLPROP_MATLAB_SWIG_MODULE)
   install (FILES ${CMAKE_CURRENT_BINARY_DIR}/+CoolProp.7z DESTINATION ${CMAKE_INSTALL_PREFIX}/MATLAB)
   install (TARGETS CoolPropMATLAB_wrap DESTINATION ${CMAKE_INSTALL_PREFIX}/MATLAB)
 endif()
+
+Eigen-swig:
+https://stackoverflow.com/questions/24375198/error-wrapping-eigen-c-with-python-using-swig

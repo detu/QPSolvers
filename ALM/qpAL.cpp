@@ -1,19 +1,10 @@
 #include "mex.h"
-#include "MexEig"
 #include "Function.h"
 #include "NewtonALM.h"
-#include <Eigen/Sparse>
 #include <fmt/core.h>
 #include <iostream>
 #include <type_traits>
 #include <limits>
-
-#define EIGEN_USE_MKL_ALL
-#include "Armijo.h"
-#include "Solver.h"  // NOLINT
-#include "MUMPSSupport"
-//#include <Eigen/Sparse>
-#include<Eigen/SparseCholesky>
 
 using FunctionXd   = cppoptlib::function::Function<double>;
 using MatlabSparse =  Eigen::SparseMatrix<double,Eigen::ColMajor,std::make_signed<mwIndex>::type> ;
@@ -46,7 +37,6 @@ public:
     }
 };
 
-// copy methods from here!
 //https://stackoverflow.com/questions/49952275/passing-sparse-arrays-from-matlab-to-eigen-c-and-back-to-matlab
 Eigen::Map<MatlabSparse > matlab_to_eigen_sparse(const mxArray * mat)
 {
@@ -89,8 +79,6 @@ mxArray* eigen_to_matlab_sparse(const Eigen::Ref<const Eigen::SparseVector<doubl
     return result;
 }
 
-// [x, ..] = almbound(H,f,Aeb,beq,lb,ub,x0,lambda,options)
-// debug: save matrices and vectors in a *.mat file!
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
     try {
@@ -107,14 +95,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         Eigen::SparseVector<double> ub = matlab_to_eigen_sparse(prhs[5]);
         Eigen::SparseVector<double> x0 = matlab_to_eigen_sparse(prhs[6]);
         Eigen::SparseVector<double> lambda = matlab_to_eigen_sparse(prhs[7]);
-        //Eigen::MatrixXd H;
-        //Eigen::VectorXd f;
-
-        //MxArrayToEigen(H, prhs[0]);
-        //MxArrayToEigen(f, prhs[1]);
-        //Eigen::SparseMatrix<double> Hs   = H.sparseView();
-        //Eigen::SparseVector<double> fs   = f.sparseView();
-
 
         int numX = Aeq.cols();
         int numC = Aeq.rows();

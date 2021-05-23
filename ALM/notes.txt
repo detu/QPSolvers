@@ -5,10 +5,118 @@ https://github.com/rensor/fminslp
 before calling MATLAB:
 export LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libstdc++.so.6"
 
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/intel/oneapi/mkl/2021.2.0/lib/intel64/:/home/detu/ThirdParty-Mumps/Debug/lib
+bass source /opt/intel/oneapi/setvars.sh
+
 matlab sparse to Eigen:
 https://stackoverflow.com/questions/49952275/passing-sparse-arrays-from-matlab-to-eigen-c-and-back-to-matlab
+
+https://se.mathworks.com/matlabcentral/answers/472129-new-c-interface-with-shared-library-not-working-r2019a
 
 follow IPOPT and HUMP installation from:
 https://github.com/zohannn/CoinIpopt
 https://github.com/zohannn/HUMP
 https://github.com/zohannn/HUMP/blob/master/CMakeLists.txt
+
+Debug Mex file from Clion:
+https://www.jetbrains.com/help/clion/attaching-to-local-process.html
+
+Try MATLAB MUMPS interface:
+https://redbkit.github.io/redbKIT/download-install/
+
+
+https://se.mathworks.com/matlabcentral/answers/223469-how-to-revert-matlab-back-to-it-s-default-blas-and-lapack-libraries-after-setting-environment-variab
+    setenv('BLAS_VERSION','/usr/lib/libopenblas.so');
+    setenv('LAPACK_VERSION','/usr/lib/liblapack.so');
+    Y = mymex(X,F,G,H);
+    setenv('BLAS_VERSION','/usr/local/MATLAB/R2015a/bin/glnxa64/mkl.so')
+    setenv('LAPACK_VERSION','/usr/local/MATLAB/R2015a/bin/glnxa64/mkl.so')
+
+swig:
+http://swig.org/doc.html
+https://en.opensuse.org/images/e/eb/Kkaempf_KnowledgeSharing_Swig.pdf
+
+cmake-swig:
+https://stackoverflow.com/questions/1498969/generating-swig-bindings-with-cmake
+https://github.com/songyuncen/learn_swig_cmake
+https://github.com/danielunderwood/swig-example
+http://www.jacobra.com/post/cmake-swig/
+https://blog.mbedded.ninja/programming/languages/python/python-swig-bindings-from-cplusplus/
+
+Swig-matlab:
+https://github.com/robotology/yarp-matlab-bindings (https://github.com/robotology/yarp-matlab-bindings/blob/master/matlab/CMakeLists.txt)
+https://github.com/rdeits/swig-matlab
+Https://Github.Com/Casadi/Casadi/Tree/Master/Swig
+https://www.iram.fr/~roche/code/python/files/SWIGTutorial.pdf
+https://docs.helics.org/en/latest/developer-guide/swig.html
+https://docs.helics.org/en/latest/installation/language.html
+https://github.com/GMLC-TDC/HELICS
+
+http://stir.sourceforge.net/wiki/index.php/Installing_the_MATLAB_interface_to_STIR
+https://github.com/UCL/STIR
+
+https://pypi.org/project/idyntree/
+https://github.com/robotology/idyntree/blob/master/doc/dev/faqs.md#how-to-add-wrap-a-new-class-or-function-with-swig
+
+https://stackoverflow.com/questions/26664945/matlab-binding-of-a-c-library-using-swig:
+https://github.com/CoolProp/CoolProp/blob/master/dev/scripts/build_swig_matlab.py
+
+if (COOLPROP_MATLAB_SWIG_MODULE)
+
+  # Must have SWIG
+  FIND_PACKAGE(SWIG REQUIRED)
+  INCLUDE(${SWIG_USE_FILE})
+
+  find_package(Matlab REQUIRED)
+
+  IF(MATLAB_FOUND)
+      message(STATUS "MATLAB Found, MATLAB MEX will be compiled.")
+  ELSE(MATLAB_FOUND)
+      MESSAGE("MATLAB not found...nothing will be built.")
+  ENDIF(MATLAB_FOUND)
+
+  set(I_FILE "${CMAKE_SOURCE_DIR}/src/CoolProp.i")
+
+  list (APPEND APP_SOURCES ${CMAKE_SOURCE_DIR}/wrappers/MATLAB/Matlabdef.def) # To export mexFunction
+
+  SET_SOURCE_FILES_PROPERTIES(${I_FILE} PROPERTIES CPLUSPLUS ON)
+
+  SWIG_ADD_MODULE(CoolPropMATLAB_wrap matlab ${I_FILE} ${APP_SOURCES})
+  SWIG_LINK_LIBRARIES(CoolPropMATLAB_wrap ${MATLAB_LIBRARIES})
+
+  add_definitions(/DMATLAB_MEX_FILE) #define matlab macros
+  add_definitions(/DMX_COMPAT_32)
+
+  add_custom_command(TARGET CoolPropMATLAB_wrap
+                     POST_BUILD
+                     COMMAND 7z a "+CoolProp.7z" "+CoolProp"
+                     WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
+
+  if(WIN32) # 32-bit or 64-bit mex
+    if (CMAKE_CL_64)
+        SET_TARGET_PROPERTIES(CoolPropMATLAB_wrap PROPERTIES PREFIX "" SUFFIX .mexw64)
+    else()
+        SET_TARGET_PROPERTIES(CoolPropMATLAB_wrap PROPERTIES SUFFIX .mexw32)
+    endif()
+  else()
+    if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+        if (${BITNESS} EQUAL "32")
+            SET_TARGET_PROPERTIES(CoolPropMATLAB_wrap PROPERTIES PREFIX "" SUFFIX .mexmaci32 PREFIX "")
+        elseif((${BITNESS} EQUAL "64"))
+            SET_TARGET_PROPERTIES(CoolPropMATLAB_wrap PROPERTIES PREFIX "" SUFFIX .mexmaci64 PREFIX "")
+        endif()
+    else()
+        if (CMAKE_SIZEOF_VOID_P MATCHES "8")
+            SET_TARGET_PROPERTIES(CoolPropMATLAB_wrap PROPERTIES PREFIX "" SUFFIX .mexa64 PREFIX "")
+        else()
+            SET_TARGET_PROPERTIES(CoolPropMATLAB_wrap PROPERTIES PREFIX "" SUFFIX .mexglx PREFIX "")
+        endif()
+    endif()
+  endif()
+  add_dependencies (CoolPropMATLAB_wrap generate_headers)
+  install (FILES ${CMAKE_CURRENT_BINARY_DIR}/+CoolProp.7z DESTINATION ${CMAKE_INSTALL_PREFIX}/MATLAB)
+  install (TARGETS CoolPropMATLAB_wrap DESTINATION ${CMAKE_INSTALL_PREFIX}/MATLAB)
+endif()
+
+Eigen-swig:
+https://stackoverflow.com/questions/24375198/error-wrapping-eigen-c-with-python-using-swig

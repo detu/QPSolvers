@@ -1,7 +1,7 @@
 // Copyright https://github.com/PatWie/CppNumericalSolvers, MIT license
 #ifndef INCLUDE_CPPOPTLIB_FUNCTION_H_
 #define INCLUDE_CPPOPTLIB_FUNCTION_H_
-
+#define EIGEN_USE_MKL_ALL
 #include "Eigen/Core"
 #include "Eigen/SparseCore"
 #include "derivatives.h"

@@ -2,11 +2,13 @@
 #ifndef INCLUDE_CPPOPTLIB_SOLVER_ALM_BOUND_H_
 #define INCLUDE_CPPOPTLIB_SOLVER_ALM_BOUND_H_
 
+#define EIGEN_USE_MKL_ALL
 #include "Armijo.h"
 #include "Solver.h"  // NOLINT
 #include "speye.h"
 #include "MUMPSSupport"
 #include <Eigen/Sparse>
+#include<Eigen/SparseCholesky>
 
 namespace cppoptlib::solver {
 
@@ -50,24 +52,15 @@ class NewtonBound : public Solver<function_t> {
     //Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
     //solver.compute(hessian);
 
-    //const vector_t delta_x = hessian.lu().solve(-next.gradient);
-    //const vector_t delta_x = solver.solve(-next.gradient);
-
-    //Eigen::MUMPSLU<Eigen::SparseMatrix<double>> solver;
     Eigen::MUMPSLDLT<Eigen::SparseMatrix<double>, Eigen::Upper|Eigen::Lower> solver;
-    
-    //Eigen::PastixLDLT<Eigen::SparseMatrix<double>, Eigen::Upper> solver;
-    //Eigen::SimplicialLDLT<Eigen::SparseMatrix<double>> solver;
+    //Eigen::MUMPSLDLT<Eigen::SparseMatrix<double>, Eigen::Upper> solver;
 
-    //solver.analyzePattern(hessian);
-    //solver.factorize(hessian);
-    
-    //Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Upper> solver;
-    //Eigen::BiCGSTAB<Eigen::SparseMatrix<double>, Eigen::IdentityPreconditioner> solver;
+    //Eigen::SimplicialLDLT<Eigen::SparseMatrix<double>> solver;
     solver.compute(hessian);
 
-    const vector_t delta_x = solver.solve(-next.gradient);
-    const scalar_t rate = linesearch::Armijo<function_t, 2>::Search(next.x, next.H, next.f, next.Aeq, next.beq, next.lambda, next.c, delta_x, function);
+    const vector_t delta_x = solver.solve(std::move(-next.gradient));
+    //const scalar_t rate = linesearch::Armijo<function_t, 2>::Search(next.x, next.H, next.f, next.Aeq, next.beq, next.lambda, next.c, delta_x, function);
+    const scalar_t rate = 1.0;
 
     return function.Eval(boundProj(next.x + rate * delta_x, next.ub, next.lb), next.H, next.f, next.Aeq, next.beq, next.lb, next.ub, next.lambda, next.c, 2);
   }
@@ -79,7 +72,7 @@ class NewtonBound : public Solver<function_t> {
       Eigen::SparseVector<double> px(x.size());
       px.setZero();
       px = x.cwiseMin(upper);
-      px = x.cwiseMax(lower);
+      px = px.cwiseMax(lower);
       return px;
   }
 

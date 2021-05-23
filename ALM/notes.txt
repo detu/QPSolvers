@@ -10,6 +10,8 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/intel/oneapi/mkl/2021.2.0/lib/intel
 matlab sparse to Eigen:
 https://stackoverflow.com/questions/49952275/passing-sparse-arrays-from-matlab-to-eigen-c-and-back-to-matlab
 
+https://se.mathworks.com/matlabcentral/answers/472129-new-c-interface-with-shared-library-not-working-r2019a
+
 follow IPOPT and HUMP installation from:
 https://github.com/zohannn/CoinIpopt
 https://github.com/zohannn/HUMP

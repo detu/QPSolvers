@@ -87,14 +87,23 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         if (nlhs != 1)
             throw std::invalid_argument("required one output arg");
 
-        Eigen::SparseMatrix<double> H = matlab_to_eigen_sparse(prhs[0]);
-        Eigen::SparseVector<double> f = matlab_to_eigen_sparse(prhs[1]);
-        Eigen::SparseMatrix<double> Aeq = matlab_to_eigen_sparse(prhs[2]);
-        Eigen::SparseVector<double> beq = matlab_to_eigen_sparse(prhs[3]);
-        Eigen::SparseVector<double> lb = matlab_to_eigen_sparse(prhs[4]);
-        Eigen::SparseVector<double> ub = matlab_to_eigen_sparse(prhs[5]);
-        Eigen::SparseVector<double> x0 = matlab_to_eigen_sparse(prhs[6]);
-        Eigen::SparseVector<double> lambda = matlab_to_eigen_sparse(prhs[7]);
+//        Eigen::SparseMatrix<double> H = matlab_to_eigen_sparse(prhs[0]);
+//        Eigen::SparseVector<double> f = matlab_to_eigen_sparse(prhs[1]);
+//        Eigen::SparseMatrix<double> Aeq = matlab_to_eigen_sparse(prhs[2]);
+//        Eigen::SparseVector<double> beq = matlab_to_eigen_sparse(prhs[3]);
+//        Eigen::SparseVector<double> lb = matlab_to_eigen_sparse(prhs[4]);
+//        Eigen::SparseVector<double> ub = matlab_to_eigen_sparse(prhs[5]);
+//        Eigen::SparseVector<double> x0 = matlab_to_eigen_sparse(prhs[6]);
+//        Eigen::SparseVector<double> lambda = matlab_to_eigen_sparse(prhs[7]);
+
+        Eigen::SparseMatrix<double> H = matlab_to_eigen_sparse(std::move(prhs[0]));
+        Eigen::SparseVector<double> f = matlab_to_eigen_sparse(std::move(prhs[1]));
+        Eigen::SparseMatrix<double> Aeq = matlab_to_eigen_sparse(std::move(prhs[2]));
+        Eigen::SparseVector<double> beq = matlab_to_eigen_sparse(std::move(prhs[3]));
+        Eigen::SparseVector<double> lb = matlab_to_eigen_sparse(std::move(prhs[4]));
+        Eigen::SparseVector<double> ub = matlab_to_eigen_sparse(std::move(prhs[5]));
+        Eigen::SparseVector<double> x0 = matlab_to_eigen_sparse(std::move(prhs[6]));
+        Eigen::SparseVector<double> lambda = matlab_to_eigen_sparse(std::move(prhs[7]));
 
         int numX = Aeq.cols();
         int numC = Aeq.rows();
@@ -181,7 +190,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             k++;
 
         }
-        plhs[0] = eigen_to_matlab_sparse(x0);
+        plhs[0] = eigen_to_matlab_sparse(std::move(x0));
     }
     catch (std::exception& ex){
         mexErrMsgIdAndTxt("tmp::error", ex.what());

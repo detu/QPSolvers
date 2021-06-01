@@ -1,19 +1,10 @@
 #include "mex.h"
-#include "MexEig"
 #include "Function.h"
 #include "NewtonALM.h"
-#include <Eigen/Sparse>
 #include <fmt/core.h>
 #include <iostream>
 #include <type_traits>
 #include <limits>
-
-#define EIGEN_USE_MKL_ALL
-#include "Armijo.h"
-#include "Solver.h"  // NOLINT
-#include "MUMPSSupport"
-//#include <Eigen/Sparse>
-#include<Eigen/SparseCholesky>
 
 using FunctionXd   = cppoptlib::function::Function<double>;
 using MatlabSparse =  Eigen::SparseMatrix<double,Eigen::ColMajor,std::make_signed<mwIndex>::type> ;
@@ -46,7 +37,6 @@ public:
     }
 };
 
-// copy methods from here!
 //https://stackoverflow.com/questions/49952275/passing-sparse-arrays-from-matlab-to-eigen-c-and-back-to-matlab
 Eigen::Map<MatlabSparse > matlab_to_eigen_sparse(const mxArray * mat)
 {
@@ -89,8 +79,6 @@ mxArray* eigen_to_matlab_sparse(const Eigen::Ref<const Eigen::SparseVector<doubl
     return result;
 }
 
-// [x, ..] = almbound(H,f,Aeb,beq,lb,ub,x0,lambda,options)
-// debug: save matrices and vectors in a *.mat file!
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
     try {
@@ -99,131 +87,110 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         if (nlhs != 1)
             throw std::invalid_argument("required one output arg");
 
-        Eigen::SparseMatrix<double> H = matlab_to_eigen_sparse(prhs[0]);
-        Eigen::SparseVector<double> f = matlab_to_eigen_sparse(prhs[1]);
+//        Eigen::SparseMatrix<double> H = matlab_to_eigen_sparse(prhs[0]);
+//        Eigen::SparseVector<double> f = matlab_to_eigen_sparse(prhs[1]);
 //        Eigen::SparseMatrix<double> Aeq = matlab_to_eigen_sparse(prhs[2]);
 //        Eigen::SparseVector<double> beq = matlab_to_eigen_sparse(prhs[3]);
 //        Eigen::SparseVector<double> lb = matlab_to_eigen_sparse(prhs[4]);
 //        Eigen::SparseVector<double> ub = matlab_to_eigen_sparse(prhs[5]);
 //        Eigen::SparseVector<double> x0 = matlab_to_eigen_sparse(prhs[6]);
 //        Eigen::SparseVector<double> lambda = matlab_to_eigen_sparse(prhs[7]);
-        //Eigen::MatrixXd H;
-        //Eigen::VectorXd f;
 
-        //MxArrayToEigen(H, prhs[0]);
-        //MxArrayToEigen(f, prhs[1]);
-        //Eigen::SparseMatrix<double> Hs   = H.sparseView();
-        //Eigen::SparseVector<double> fs   = f.sparseView();
+        Eigen::SparseMatrix<double> H = matlab_to_eigen_sparse(std::move(prhs[0]));
+        Eigen::SparseVector<double> f = matlab_to_eigen_sparse(std::move(prhs[1]));
+        Eigen::SparseMatrix<double> Aeq = matlab_to_eigen_sparse(std::move(prhs[2]));
+        Eigen::SparseVector<double> beq = matlab_to_eigen_sparse(std::move(prhs[3]));
+        Eigen::SparseVector<double> lb = matlab_to_eigen_sparse(std::move(prhs[4]));
+        Eigen::SparseVector<double> ub = matlab_to_eigen_sparse(std::move(prhs[5]));
+        Eigen::SparseVector<double> x0 = matlab_to_eigen_sparse(std::move(prhs[6]));
+        Eigen::SparseVector<double> lambda = matlab_to_eigen_sparse(std::move(prhs[7]));
 
-//
-//        int numX = Aeq.cols();
-//        int numC = Aeq.rows();
+        int numX = Aeq.cols();
+        int numC = Aeq.rows();
 
-//        Function fx;
-//        Function::scalar_t c(10);
-//
-//        //cppoptlib::solver::NewtonBound<Function> solver;
-//
-////        Eigen::SparseVector<double> cons(numC);
-////        Eigen::SparseVector<double> x(numX);
-//        double eta0{0.1258925};
-//        double c0{10};
-//        double epsilon0{1 / c0};
-//        double tau{10};
-//        double alpha{0.1};
-//        double beta{0.9};
-//        double epsilonk = 1 / c;
-//        double etak = eta0 / pow(c, alpha);
-//        double eta{1e-2};
-//        int verbose = 1;
-//
-//        if (verbose) {
-//            // print header of outer iteration
-//            std::cout << "---------------------------------------------------------------------------------------"
-//                      << std::endl;
-//            std::cout << "k    " << "\t";
-//            std::cout << "f(x_k)" << "\t" << "\t";
-//            std::cout << "gradf(x_k)" << "\t";
-//            std::cout << "cons(x_k)" << "\t";
-//            std::cout << "stepsize" << "\t";
-//            std::cout << "epsilonk" << std::endl;
-//            std::cout << "---------------------------------------------------------------------------------------"
-//                      << std::endl;
-//        }
-//
-//
-//        // need to check if x0 is feasible (look at CT Kelley code)
-//
-//        // ganti stopping criteria buat ALM (liat buku N&W dan paper Andy)
-//        double normX{100};
-//        double grad{100};
-//        double jac;
-//        int k = 1;
-//        //auto state = fx.Eval(x0, H, f, Aeq, beq, lb, ub, lambda, c);
+        Function fx;
+        Function::scalar_t c(10);
 
-        Eigen::MUMPSLDLT<Eigen::SparseMatrix<double>, Eigen::Upper|Eigen::Lower> solver;;
-        //Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
-        //Eigen::SimplicialLDLT<Eigen::SparseMatrix<double>> solver;
-        solver.compute(H);
-        auto infoH = solver.info();
-        //if(!solver.info()) {
-            // decomposition failed
-        //    return;
-        //}
+        cppoptlib::solver::NewtonBound<Function> solver;
+
+        Eigen::SparseVector<double> cons(numC);
+        Eigen::SparseVector<double> x(numX);
+        double eta0{0.1258925};
+        double c0{10};
+        double epsilon0{1 / c0};
+        double tau{10};
+        double alpha{0.1};
+        double beta{0.9};
+        double epsilonk = 1 / c;
+        double etak = eta0 / pow(c, alpha);
+        double eta{1e-2};
+        int verbose = 1;
+
+        if (verbose) {
+            // print header of outer iteration
+            std::cout << "---------------------------------------------------------------------------------------"
+                      << std::endl;
+            std::cout << "k    " << "\t";
+            std::cout << "f(x_k)" << "\t" << "\t";
+            std::cout << "gradf(x_k)" << "\t";
+            std::cout << "cons(x_k)" << "\t";
+            std::cout << "stepsize" << "\t";
+            std::cout << "epsilonk" << std::endl;
+            std::cout << "---------------------------------------------------------------------------------------"
+                      << std::endl;
+        }
 
 
+        // need to check if x0 is feasible (look at CT Kelley code)
+
+        // ganti stopping criteria buat ALM (liat buku N&W dan paper Andy)
+        double normX{100};
+        double grad{100};
+        double jac;
+        int k = 1;
+        auto state = fx.Eval(x0, H, f, Aeq, beq, lb, ub, lambda, c);
 
 
-        //Eigen::SparseVector<double> delta_x = solver.solve(std::move(-state.gradient));
-        Eigen::SparseVector<double>  delta_x = solver.solve(std::move(-f));
-        auto infoX = solver.info();
-//        if(!solver.info()) {
-//            // solving failed
-//            return;
-//        }
+        while (grad > eta && normX > eta) {
+            //solver.setStoppingCriteria(epsilonk);
+            //auto[solution, solver_state] = solver.Minimize(fx, x0s, Hs, fs, Aeqs, beqs,  lbs, ubs, lambdas, c);
+            auto[solution, solver_state] = solver.Minimize(fx, state);
 
-//        while (grad > eta && normX > eta) {
-//            //solver.setStoppingCriteria(epsilonk);
-//            //auto[solution, solver_state] = solver.Minimize(fx, x0s, Hs, fs, Aeqs, beqs,  lbs, ubs, lambdas, c);
-//            auto[solution, solver_state] = solver.Minimize(fx, state);
-//
-//            // compute constraint value
-//            cons = solution.Aeq * solution.x - solution.beq;
-//            jac = cons.norm();
-//            if (jac <= etak) {
-//                lambda = lambda + c * cons;
-//                if (epsilonk > 0.01) {
-//                    epsilonk = epsilonk / c;
-//                }
-//                //epsilonk = epsilonk/c;
-//                etak = etak / pow(c, beta);
-//            } else {
-//                c = tau * c;
-//                if (epsilonk > 0.01) {
-//                    epsilonk = epsilon0 / c;
-//                }
-//                //epsilonk = epsilon0/c;
-//                etak = eta0 / pow(c, alpha);
-//
-//            }
-//            normX = (solution.x - x0).norm();
-//            grad = solver_state.gradient_norm;
-//            x0 = solution.x;
-//            if (verbose) {
-//                std::cout << k << "\t";
-//                std::cout << fmt::format("{:.4e}", solution.value) << "\t";
-//                std::cout << fmt::format("{:.4e}", grad) << "\t";
-//                std::cout << fmt::format("{:.4e}", jac) << "\t";
-//                std::cout << fmt::format("{:.4e}", normX) << "\t";
-//                std::cout << fmt::format("{:.4e}", epsilonk) << std::endl;
-//            }
-//            auto state = solution;
-//            k++;
-//
-//        }
-        plhs[0] = EigenToMxArray(delta_x.toDense()); // change to eigen_to_matlab_sparse!
-        //plhs[0] = eigen_to_matlab_sparse(x0);
-        //plhs[0] = eigen_to_matlab_sparse(delta_x);
+            // compute constraint value
+            cons = solution.Aeq * solution.x - solution.beq;
+            jac = cons.norm();
+            if (jac <= etak) {
+                lambda = lambda + c * cons;
+                if (epsilonk > 0.01) {
+                    epsilonk = epsilonk / c;
+                }
+                //epsilonk = epsilonk/c;
+                etak = etak / pow(c, beta);
+            } else {
+                c = tau * c;
+                if (epsilonk > 0.01) {
+                    epsilonk = epsilon0 / c;
+                }
+                //epsilonk = epsilon0/c;
+                etak = eta0 / pow(c, alpha);
+
+            }
+            normX = (solution.x - x0).norm();
+            grad = solver_state.gradient_norm;
+            x0 = solution.x;
+            if (verbose) {
+                std::cout << k << "\t";
+                std::cout << fmt::format("{:.4e}", solution.value) << "\t";
+                std::cout << fmt::format("{:.4e}", grad) << "\t";
+                std::cout << fmt::format("{:.4e}", jac) << "\t";
+                std::cout << fmt::format("{:.4e}", normX) << "\t";
+                std::cout << fmt::format("{:.4e}", epsilonk) << std::endl;
+            }
+            auto state = solution;
+            k++;
+
+        }
+        plhs[0] = eigen_to_matlab_sparse(std::move(x0));
     }
     catch (std::exception& ex){
         mexErrMsgIdAndTxt("tmp::error", ex.what());

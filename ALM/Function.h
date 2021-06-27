@@ -64,6 +64,8 @@ public:
   using vector_t  = Eigen::SparseVector<TScalar, Eigen::ColMajor, int>;
   using hessian_t = Eigen::SparseMatrix<TScalar, Eigen::ColMajor, int>;
   using matrix_t  = Eigen::SparseMatrix<TScalar, Eigen::ColMajor, int>;
+  using index_t   = typename vector_t::Index;
+  using state_t   = function::State<scalar_t, vector_t, hessian_t>;
 
     static const int Dim = TDim;
 public:
@@ -81,8 +83,8 @@ public:
 
   virtual int Order() const { return 1; }
 
-    virtual State <scalar_t, vector_t, hessian_t>
-    Eval(const vector_t &x, const matrix_t &H, const vector_t &f, const matrix_t &Aeq, const vector_t &beq, const vector_t &lb, const vector_t &ub, const vector_t &lambda, const scalar_t c ,const int order = 2) const {
+  virtual State <scalar_t, vector_t, hessian_t>
+  Eval(const vector_t &x, const matrix_t &H, const vector_t &f, const matrix_t &Aeq, const vector_t &beq, const vector_t &lb, const vector_t &ub, const vector_t &lambda, const scalar_t c ,const int order = 2) const {
         State<scalar_t, vector_t, hessian_t> state(x.rows(), order);
         state.value = this->operator()(x,H, f, Aeq, beq, lambda,c);
         state.x      = x;

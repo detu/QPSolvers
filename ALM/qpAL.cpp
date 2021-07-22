@@ -78,7 +78,11 @@ mxArray* eigen_to_matlab_sparse(const Eigen::Ref<const Eigen::SparseVector<doubl
     }
     return result;
 }
-
+// output from qpAL:
+// 1. xopt
+// 2. objVal
+// 3. solverStatus
+// 4. yopt (dual variable)
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
     try {

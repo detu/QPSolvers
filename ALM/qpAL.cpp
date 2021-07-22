@@ -83,6 +83,7 @@ mxArray* eigen_to_matlab_sparse(const Eigen::Ref<const Eigen::SparseVector<doubl
 // 2. objVal
 // 3. solverStatus
 // 4. yopt (dual variable)
+// [xsol,lam_g,objVal,qp_exit] = qpAL(...);
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
     try {
@@ -195,6 +196,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
         }
         plhs[0] = eigen_to_matlab_sparse(std::move(x0));
+        plhs[1] = eigen_to_matlab_sparse(std::move(lambda));
+        // plhs[2] = objectiveFunctionValue
+        // plhs[3] = solverStatus
     }
     catch (std::exception& ex){
         mexErrMsgIdAndTxt("tmp::error", ex.what());

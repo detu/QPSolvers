@@ -1,6 +1,7 @@
 #include "mex.h"
 #include "Function.h"
 #include "NewtonALM.h"
+#include "Solver.h"
 #include <fmt/core.h>
 #include <iostream>
 #include <type_traits>
@@ -78,6 +79,18 @@ mxArray* eigen_to_matlab_sparse(const Eigen::Ref<const Eigen::SparseVector<doubl
     }
     return result;
 }
+
+//mxArray *mxCreateIntScalar (cppoptlib::solver::Status value){
+//    mxArray *res;
+//    if ( sizeof(mwSignedIndex) == 8 )
+//        res = mxCreateNumericMatrix (1, 1, mxINT64_CLASS, mxREAL);
+//    else
+//        res = mxCreateNumericMatrix (1, 1, mxINT32_CLASS, mxREAL);
+//    cppoptlib::solver::Status *res_val = mxGetData(res);
+//    *res_val = value;
+//    return res;
+//}
+
 // output from qpAL:
 // 1. xopt
 // 2. objVal
@@ -154,7 +167,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         double jac;
         int k = 1;
         auto state = fx.Eval(x0, H, f, Aeq, beq, lb, ub, lambda, c);
-
+        double objVal{0};
+        double status{0};
 
         while (grad > eta && normX > eta) {
             //solver.setStoppingCriteria(epsilonk);
@@ -180,12 +194,14 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
                 etak = eta0 / pow(c, alpha);
 
             }
-            normX = (solution.x - x0).norm();
-            grad = solver_state.gradient_norm;
-            x0 = solution.x;
+            normX  = (solution.x - x0).norm();
+            grad   = solver_state.gradient_norm;
+            x0     = solution.x;
+            objVal = solution.value;
+            status = static_cast<double >(solver_state.status);
             if (verbose) {
                 std::cout << k << "\t";
-                std::cout << fmt::format("{:.4e}", solution.value) << "\t";
+                std::cout << fmt::format("{:.4e}", objVal) << "\t";
                 std::cout << fmt::format("{:.4e}", grad) << "\t";
                 std::cout << fmt::format("{:.4e}", jac) << "\t";
                 std::cout << fmt::format("{:.4e}", normX) << "\t";
@@ -197,8 +213,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         }
         plhs[0] = eigen_to_matlab_sparse(std::move(x0));
         plhs[1] = eigen_to_matlab_sparse(std::move(lambda));
-        // plhs[2] = objectiveFunctionValue
-        // plhs[3] = solverStatus
+        plhs[2] = mxCreateDoubleScalar(std::move(objVal));
+        plhs[3] = mxCreateDoubleScalar(std::move(status));
     }
     catch (std::exception& ex){
         mexErrMsgIdAndTxt("tmp::error", ex.what());

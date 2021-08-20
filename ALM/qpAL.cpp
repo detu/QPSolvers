@@ -102,7 +102,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     try {
         if (nrhs < 1)
             throw std::invalid_argument("required one input arg");
-        if (nlhs != 1)
+        if (nlhs < 1)
             throw std::invalid_argument("required one output arg");
 
 //        Eigen::SparseMatrix<double> H = matlab_to_eigen_sparse(prhs[0]);
@@ -213,8 +213,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         }
         plhs[0] = eigen_to_matlab_sparse(std::move(x0));
         plhs[1] = eigen_to_matlab_sparse(std::move(lambda));
-        plhs[2] = mxCreateDoubleScalar(std::move(objVal));
-        plhs[3] = mxCreateDoubleScalar(std::move(status));
+        plhs[2] = mxCreateDoubleScalar(objVal);
+        plhs[3] = mxCreateDoubleScalar(status);
     }
     catch (std::exception& ex){
         mexErrMsgIdAndTxt("tmp::error", ex.what());

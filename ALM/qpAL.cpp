@@ -127,7 +127,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         int numC = Aeq.rows();
 
         Function fx;
-        Function::scalar_t c(10);
+        Function::scalar_t c(10000);
 
         cppoptlib::solver::NewtonBound<Function> solver;
 
@@ -141,7 +141,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         double beta{0.9};
         double epsilonk = 1 / c;
         double etak = eta0 / pow(c, alpha);
-        double eta{1e-2};
+        double eta{1e-6};
         int verbose = 1;
 
         if (verbose) {

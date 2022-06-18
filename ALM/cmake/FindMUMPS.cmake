@@ -12,13 +12,13 @@ endif (MUMPS_INCLUDE_DIR)
 
 find_path(MUMPS_INCLUDE_DIR
         NAMES dmumps_c.h
-        HINTS "/home/detu/ThirdParty-Mumps/Debug/include/coin-or/mumps"
-        "/usr/include/"
+        HINTS "/home/detu/coding/ThirdParty-Mumps/MUMPS/include"
+        "/usr/local/include/coin-or/mumps"
         )
 
 find_library( MUMPS_LIBRARY_DEBUG
         coinmumps
-        HINTS "/home/detu/ThirdParty-Mumps/Debug/lib"
+        HINTS "/home/detu/coding/ThirdParty-Mumps/MUMPS/.libs"
         "/usr/lib"
         )
 

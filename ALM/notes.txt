@@ -129,3 +129,8 @@ endif()
 
 Eigen-swig:
 https://stackoverflow.com/questions/24375198/error-wrapping-eigen-c-with-python-using-swig
+
+Open source QP solvers:
+- https://www.sherikov.net/qpmad/
+- https://github.com/jarredbarber/eigen-QP
+- https://github.com/jrl-umi3218/eigen-quadprog
